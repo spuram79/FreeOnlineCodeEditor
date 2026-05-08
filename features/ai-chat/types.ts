@@ -15,3 +15,12 @@ export type Model = {
   name: string;
   description: string;
 };
+
+export type ChatSession = {
+  id: string;
+  title: string;
+  messages: Message[];
+  model: string;
+  createdAt: number;
+  updatedAt: number;
+};
