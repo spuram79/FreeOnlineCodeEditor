@@ -1,20 +1,22 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Message, Model, FREE_MODELS } from "@/features/ai-chat";
+import { Message, Model, FREE_MODELS, ChatHistoryProvider, useChatHistory, ChatHistorySidebar } from "@/features/ai-chat";
 
-export default function AiChat() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hello! I'm a free AI assistant powered by OpenRouter. Get your free API key from openrouter.ai/keys and start chatting! 🚀" }
-  ]);
+function ChatPageContent() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [models] = useState<Model[]>(FREE_MODELS);
   const [selectedModel, setSelectedModel] = useState("openrouter/free");
   const [apiKey, setApiKey] = useState("");
   const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  const { currentSession, createNewSession, updateSession, selectSession } = useChatHistory();
+  const messages = currentSession?.messages || [];
+  const sessionId = currentSession?.id;
 
   useEffect(() => {
     // Load API key from localStorage if available
@@ -23,6 +25,13 @@ export default function AiChat() {
       setApiKey(savedApiKey);
     }
   }, []);
+
+  // Create a new session if none exists
+  useEffect(() => {
+    if (!currentSession) {
+      createNewSession(selectedModel);
+    }
+  }, [currentSession, createNewSession, selectedModel]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,22 +42,25 @@ export default function AiChat() {
     localStorage.setItem("openrouter_api_key", key);
   };
 
+  const handleNewChat = () => {
+    createNewSession(selectedModel);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
     
     if (!apiKey) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Please enter your OpenRouter API key in settings first. Get a free key at openrouter.ai/keys" },
-      ]);
+      const apiMessage: Message[] = [...messages, { role: "assistant", content: "Please enter your OpenRouter API key in settings first. Get a free key at openrouter.ai/keys" }];
+      updateSession(sessionId!, apiMessage, selectedModel);
       setShowSettings(true);
       return;
     }
 
     const userMessage = input.trim();
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    const userMessages: Message[] = [...messages, { role: "user", content: userMessage }];
+    updateSession(sessionId!, userMessages, selectedModel);
     setIsLoading(true);
 
     // Create abort controller for cancellation
@@ -61,7 +73,7 @@ export default function AiChat() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [...messages, { role: "user", content: userMessage }],
+          messages: userMessages,
           model: selectedModel,
           apiKey,
         }),
@@ -73,7 +85,8 @@ export default function AiChat() {
         throw new Error(error.error || "Failed to get response");
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      const assistantMessages: Message[] = [...userMessages, { role: "assistant", content: "" }];
+      updateSession(sessionId!, assistantMessages, selectedModel);
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -95,11 +108,11 @@ export default function AiChat() {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content || "";
               assistantMessage += content;
-              setMessages((prev) => {
-                const newMessages = [...prev];
-                newMessages[newMessages.length - 1] = { role: "assistant", content: assistantMessage };
-                return newMessages;
-              });
+              const updatedMessages: Message[] = [
+                ...userMessages,
+                { role: "assistant", content: assistantMessage }
+              ];
+              updateSession(sessionId!, updatedMessages, selectedModel);
             } catch (e) {
               // Ignore parse errors
             }
@@ -108,10 +121,8 @@ export default function AiChat() {
       }
     } catch (error: any) {
       if (error.name !== "AbortError") {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: `Error: ${error.message || "Something went wrong"}` },
-        ]);
+        const errorMessages: Message[] = [...userMessages, { role: "assistant", content: `Error: ${error.message || "Something went wrong"}` }];
+        updateSession(sessionId!, errorMessages, selectedModel);
       }
     } finally {
       setIsLoading(false);
@@ -142,6 +153,16 @@ export default function AiChat() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowHistory(!showHistory)}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="Chat History"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
             <label className="text-sm text-gray-600 dark:text-gray-300">Model:</label>
             <select
               value={selectedModel}
@@ -285,6 +306,23 @@ export default function AiChat() {
           </div>
         </div>
       )}
+
+      {/* Chat History Sidebar */}
+      {showHistory && (
+        <ChatHistorySidebar
+          isOpen={showHistory}
+          onClose={() => setShowHistory(false)}
+          onNewChat={handleNewChat}
+        />
+      )}
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ChatHistoryProvider>
+      <ChatPageContent />
+    </ChatHistoryProvider>
   );
 }
