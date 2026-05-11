@@ -1,4 +1,31 @@
+# Santosh Puram's AI Tools
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Features
+
+- **Code Editor** - Edit HTML, CSS, JavaScript, Python, C#, and Java with live preview
+- **AI Chat** - Chat with 30+ free AI models from OpenRouter
+
+## AI Chat
+
+The AI Chat app uses free models from [OpenRouter](https://openrouter.ai/models). To use it:
+
+1. Get a free API key from [openrouter.ai/keys](https://openrouter.ai/keys)
+2. Open the AI Chat app from the main page
+3. Enter your API key in the settings (gear icon)
+4. Select a model and start chatting!
+
+### Available Free Models
+
+- OpenRouter Free (auto-selects best model)
+- Meta Llama 3.2 3B & 3.3 70B
+- Google Gemma 4 26B & 31B
+- OpenAI GPT OSS 120B & 20B
+- NVIDIA Nemotron 3 Nano & Super
+- Qwen3 Coder & Next 80B
+- Poolside Laguna (coding models)
+- And many more!
 
 ## Getting Started
 

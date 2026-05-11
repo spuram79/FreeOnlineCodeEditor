@@ -1,263 +1,75 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import CodeEditor from "@/components/CodeEditor";
-import LanguageDropdown from "@/components/LanguageDropdown";
-import {
-  defaultHtml,
-  defaultCss,
-  defaultJs,
-} from "@/lib/web-templates";
-import { defaultPython } from "@/lib/python-template";
-import { defaultCSharp } from "@/lib/csharp-template";
-import { defaultJava } from "@/lib/java-template";
+import Link from "next/link";
 
-type Language = "html" | "css" | "javascript" | "python" | "csharp" | "java";
-
-declare global {
-  interface Window {
-    loadPyodide: any;
-    pyodide: any;
-  }
-}
-
-// Language-specific code state type
-type CodeState = {
-  html: string;
-  css: string;
-  javascript: string;
-  python: string;
-  csharp: string;
-  java: string;
-};
-
-export default function FreeOnlineCodeEditor() {
-  const [code, setCode] = useState<CodeState>({
-    html: defaultHtml,
-    css: defaultCss,
-    javascript: defaultJs,
-    python: defaultPython,
-    csharp: defaultCSharp,
-    java: defaultJava,
-  });
-
-  // Python-specific state
-  const [pythonOutput, setPythonOutput] = useState<string>("");
-  const [isPyodideLoading, setIsPyodideLoading] = useState<boolean>(false);
-  const [pyodideReady, setPyodideReady] = useState<boolean>(false);
-
-  // UI state
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>("html");
-  const [previewKey, setPreviewKey] = useState(0);
-
-  // Check if current language needs output panel (Python)
-  const needsOutputPanel = selectedLanguage === "python";
-
-  // Load Pyodide when Python is selected
-  useEffect(() => {
-    if (selectedLanguage === "python" && !pyodideReady && !isPyodideLoading) {
-      setIsPyodideLoading(true);
-      const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";
-      script.onload = async () => {
-        try {
-          const pyodide = await window.loadPyodide({
-            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/",
-          });
-          window.pyodide = pyodide;
-          setPyodideReady(true);
-          setPythonOutput((prev) => prev + "✓ Python loaded successfully!\n");
-        } catch (error) {
-          setPythonOutput((prev) => prev + `Error loading Python: ${error}\n`);
-        }
-      };
-      document.body.appendChild(script);
-    }
-  }, [selectedLanguage, pyodideReady, isPyodideLoading]);
-
-  const runPython = async () => {
-    if (!window.pyodide || !pyodideReady) {
-      setPythonOutput("Python is not ready yet. Please wait...\n");
-      return;
-    }
-
-    setPythonOutput("");
-    try {
-      await window.pyodide.runPythonAsync(`
-import sys
-from io import StringIO
-import builtins
-
-# Capture stdout
-old_stdout = sys.stdout
-sys.stdout = StringIO()
-
-def print(*args, **kwargs):
-    builtins.print(*args, **kwargs)
-
-try:
-    ${code.python.split("\n").map((line) => "    " + line).join("\n")}
-except Exception as e:
-    builtins.print(f"Error: {e}")
-finally:
-    output = sys.stdout.getvalue()
-    sys.stdout = old_stdout
-`);
-      const output = window.pyodide.globals.get("output");
-      setPythonOutput(output ? output.toString() : "");
-    } catch (error) {
-      setPythonOutput(`Error: ${error}\n`);
-    }
-  };
-
-  const generatePreview = () => {
-    const fullHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>${code.css}</style>
-</head>
-<body>
-  ${code.html}
-  <script>${code.javascript}<\/script>
-</body>
-</html>`;
-    return fullHtml;
-  };
-
-  const refreshPreview = () => {
-    setPreviewKey((prev) => prev + 1);
-  };
-
-  const getDisplayName = () => {
-    switch (selectedLanguage) {
-      case "html": return "HTML";
-      case "css": return "CSS";
-      case "javascript": return "JavaScript";
-      case "python": return "Python";
-      case "csharp": return "C#";
-      case "java": return "Java";
-    }
-  };
-
+export default function LandingPage() {
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Free Online Code Editor</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Edit HTML, CSS, JS, Python, C#, and Java</p>
-            </div>
+      <header className="w-full max-w-4xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
           </div>
-          
-          {/* Language Selector */}
-          <LanguageDropdown
-            selectedLanguage={selectedLanguage}
-            onLanguageChange={setSelectedLanguage}
-          />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Santosh Puram's AI Tools</h1>
         </div>
+        <p className="text-center text-gray-600 dark:text-gray-400 mt-2">Choose your tool below</p>
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Editor Panel */}
-        <div className="w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-700">
-          {/* Python Mode Header - for Run button */}
-          {selectedLanguage === "python" && (
-            <div className="flex bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2 justify-between items-center">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">PYTHON</span>
+      <main className="flex-1 flex items-center justify-center px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl w-full">
+          {/* AI Chatbot Card */}
+          <Link href="/ai-chat" className="group">
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600">
+              <div className="w-24 h-24 mb-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
               </div>
-              <div className="flex items-center gap-2">
-                {isPyodideLoading && !pyodideReady && (
-                  <span className="text-xs text-gray-500">Loading Python...</span>
-                )}
-                <button
-                  onClick={runPython}
-                  disabled={!pyodideReady}
-                  className={`px-4 py-1.5 text-sm font-medium rounded bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
-                >
-                  Run Python
-                </button>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">AI Chatbot</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                Chat with 30+ free AI models powered by OpenRouter. Get your free API key to start!
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-purple-500 dark:text-purple-400">
+                <span className="text-sm font-medium">Try Now</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
-          )}
+          </Link>
 
-          {/* Code Editor */}
-          <div className="flex-1">
-            <CodeEditor
-              language={selectedLanguage}
-              value={code[selectedLanguage]}
-              onChange={(value) => setCode((prev) => ({ ...prev, [selectedLanguage]: value || "" }))}
-            />
-          </div>
-        </div>
-
-        {/* Preview/Output Panel */}
-        <div className="w-1/2 flex flex-col">
-          {/* Panel Header */}
-          <div className="bg-gray-50 dark:bg-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          {/* Code Editor Card */}
+          <Link href="/editor" className="group">
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600">
+              <div className="w-24 h-24 mb-6 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-                {needsOutputPanel ? "Output" : "Preview"}
-              </span>
-              {!needsOutputPanel && (
-                <button
-                  onClick={refreshPreview}
-                  className="ml-auto px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Refresh
-                </button>
-              )}
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Code Editor</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                Write, edit, and preview HTML, CSS, JavaScript, Python, C#, and Java in real-time.
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-blue-500 dark:text-blue-400">
+                <span className="text-sm font-medium">Open Editor</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
-          </div>
-
-          {/* Panel Content */}
-          <div className="flex-1 overflow-hidden">
-            {needsOutputPanel ? (
-              <div className="w-full h-full bg-gray-900 text-green-400 font-mono text-sm p-4 overflow-auto">
-                <pre className="whitespace-pre-wrap">{pythonOutput || "Click 'Run Python' to execute your code..."}</pre>
-              </div>
-            ) : (
-              <iframe
-                key={previewKey}
-                srcDoc={generatePreview()}
-                title="Preview"
-                className="w-full h-full border-none"
-                sandbox="allow-scripts"
-              />
-            )}
-          </div>
+          </Link>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-4">
-            <span>Made with ❤️ using Poolside</span>
-            <span>•</span>
-            <span>{getDisplayName()}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span>Ready</span>
-          </div>
-        </div>
+      <footer className="w-full max-w-4xl mx-auto px-4 py-6 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Made with ❤️ by Santosh Puram • AI Chat & Code Editor
+        </p>
       </footer>
     </div>
   );
