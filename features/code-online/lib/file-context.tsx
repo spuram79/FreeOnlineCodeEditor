@@ -7,8 +7,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { FileInfo, LocalFolder, FileSource } from "../types";
-import { readDirectory, readFile, getFileHandle } from "../lib/local-file-utils";
+import { FileInfo, LocalFolder, FileSource } from "../types/index";
+import { readDirectory, readFile, getFileHandle } from "./local-file-utils";
 
 interface FileContextValue {
   fileSource: FileSource;

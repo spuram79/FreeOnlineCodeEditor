@@ -7,7 +7,7 @@
 "use client";
 
 import React from "react";
-import { EditorTab } from "../types";
+import { EditorTab } from "../types/index";
 
 interface EditorTabsProps {
   tabs: EditorTab[];

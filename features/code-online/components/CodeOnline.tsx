@@ -7,18 +7,19 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { CodeOnlineState, ActivityView, FileInfo, EditorTab, Terminal, RunConfiguration, RunResult } from "../types";
-import FileExplorer from "./FileExplorer";
-import EditorTabs from "./EditorTabs";
-import TerminalPanel from "./TerminalPanel";
-import StatusBar from "./StatusBar";
-import ActivityBar from "./ActivityBar";
-import GitPanel from "./GitPanel";
-import RunPanel from "./RunPanel";
+import { CodeOnlineState, ActivityView, FileInfo, EditorTab, Terminal, RunConfiguration, RunResult } from "../types/index";
+import { FileExplorer } from "../panel";
+import { EditorTabs } from "../panel";
+import { TerminalPanel } from "../panel";
+import { StatusBar } from "../panel";
+import { ActivityBar } from "../panel";
+import { GitPanel } from "../panel";
+import { RunPanel } from "../panel";
 import ResizablePanel from "./ResizablePanel";
+import MenuBar from "../panel/MenuBar";
 import CodeEditor from "../../code-editor/components/CodeEditor";
 import { Language } from "../../code-editor/types";
-import { getGitService } from "../lib/git-service";
+import { getGitService } from "../services";
 import { openLocalFolder, readDirectory, reopenLastFolder } from "../lib/local-file-utils";
 import { AIAssistant } from "@/features/ai-chat";
 import { useEffect } from "react";

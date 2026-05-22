@@ -7,7 +7,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { RunConfiguration, RunResult, RunEnvironment } from "../types";
+import { RunConfiguration, RunResult, RunEnvironment } from "../types/index";
 
 interface RunPanelProps {
   configurations: RunConfiguration[];

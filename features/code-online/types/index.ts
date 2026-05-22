@@ -4,6 +4,8 @@
  * VSCode-like editor types and interfaces.
  */
 
+import React from "react";
+
 // File system types
 export interface FileInfo {
   id: string;

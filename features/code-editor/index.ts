@@ -14,7 +14,7 @@ export { PythonCellContainer } from "./components/PythonCell";
 export type { Language, CodeState, LanguageOption, PythonCell, PythonCellState } from "./types";
 export { LANGUAGES } from "./components/LanguageDropdown";
 
-// Templates
+// Templates (starter code for different languages)
 export { defaultHtml, defaultCss, defaultJs } from "./lib/web-templates";
 export { defaultPython } from "./lib/python-template";
 export { defaultCSharp } from "./lib/csharp-template";

@@ -4,7 +4,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import RunPanel from "./RunPanel";
-import { RunConfiguration, RunResult } from "../types";
+import { RunConfiguration, RunResult } from "../types/index";
 
 describe("RunPanel", () => {
   const mockConfig: RunConfiguration = {

@@ -7,8 +7,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { GitRepository, GitCommit, GitFileChange, GitBranch } from "../types";
-import { GitService, getGitService } from "../lib/git-service";
+import { GitRepository, GitCommit, GitFileChange, GitBranch } from "../types/index";
+import { GitService, getGitService } from "../services";
 
 interface GitPanelProps {
   gitService: GitService;

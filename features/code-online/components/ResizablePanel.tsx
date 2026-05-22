@@ -29,11 +29,12 @@ export default function ResizablePanel({
   onResize,
   className = "",
   showHandle = true,
-}: ResizablePanel) {
+}: ResizablePanelProps) {
   const [size, setSize] = useState(initialSize);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const startXRef = useRef<number>(0);
+  const startYRef = useRef<number>(0);
   const startSizeRef = useRef<number>(0);
 
   const handleMouseDown = useCallback(
@@ -41,6 +42,7 @@ export default function ResizablePanel({
       e.preventDefault();
       setIsDragging(true);
       startXRef.current = e.clientX;
+      startYRef.current = e.clientY;
       startSizeRef.current = size;
 
       // Add global mouse event listeners

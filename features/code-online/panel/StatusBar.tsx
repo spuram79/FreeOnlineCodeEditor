@@ -7,7 +7,7 @@
 "use client";
 
 import React from "react";
-import { EditorTab, EditorPosition } from "../types";
+import { EditorTab, EditorPosition } from "../types/index";
 
 interface StatusBarProps {
   activeTab?: EditorTab;

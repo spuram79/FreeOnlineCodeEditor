@@ -6,7 +6,7 @@
 
 "use client";
 
-import { FileInfo, LocalFolder } from "../types";
+import { FileInfo, LocalFolder } from "../types/index";
 
 /**
  * Get file extension from filename

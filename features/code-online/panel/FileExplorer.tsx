@@ -7,7 +7,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FileInfo } from "../types";
+import { FileInfo } from "../types/index";
 
 interface FileExplorerProps {
   rootFolder: FileInfo;

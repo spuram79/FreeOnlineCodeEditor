@@ -40,12 +40,12 @@ export function scanWorkspace(fileStructure: any): ScanSummary {
     
     // Check for common issues
     if (content.includes('console.log')) {
-      const lineNum = content.split('\n').findIndex(l => l.includes('console.log')) + 1;
+      const lineNum = content.split('\n').findIndex((l: string) => l.includes('console.log')) + 1;
       issues.push({ type: 'suggestion', message: 'Remove console.log statement', line: lineNum });
     }
     
     if (content.includes('TODO') || content.includes('FIXME')) {
-      const lineNum = content.split('\n').findIndex(l => l.includes('TODO') || l.includes('FIXME')) + 1;
+      const lineNum = content.split('\n').findIndex((l: string) => l.includes('TODO') || l.includes('FIXME')) + 1;
       issues.push({ type: 'warning', message: 'TODO/FIXME comment found', line: lineNum });
     }
     

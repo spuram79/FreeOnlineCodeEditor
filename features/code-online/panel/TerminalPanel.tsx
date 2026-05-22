@@ -7,7 +7,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Terminal, TerminalLine } from "../types";
+import { Terminal, TerminalLine } from "../types/index";
 
 interface TerminalPanelProps {
   terminals: Terminal[];

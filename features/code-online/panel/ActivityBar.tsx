@@ -7,7 +7,7 @@
 "use client";
 
 import React from "react";
-import { ActivityView } from "../types";
+import { ActivityView } from "../types/index";
 
 interface ActivityBarProps {
   activeView: ActivityView;
