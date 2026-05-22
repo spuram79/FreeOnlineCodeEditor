@@ -91,3 +91,67 @@ export interface EditorPosition {
   lineNumber: number;
   column: number;
 }
+
+// Git types
+export interface GitRepository {
+  id: string;
+  name: string;
+  url: string;
+  branch: string;
+  isPrivate: boolean;
+  lastCommit?: GitCommit;
+}
+
+export interface GitCommit {
+  id: string;
+  message: string;
+  author: string;
+  timestamp: Date;
+  sha: string;
+}
+
+export interface GitFileChange {
+  id: string;
+  path: string;
+  status: 'added' | 'modified' | 'deleted' | 'renamed';
+  additions: number;
+  deletions: number;
+}
+
+export interface GitBranch {
+  id: string;
+  name: string;
+  isCurrent: boolean;
+  isRemote: boolean;
+}
+
+export interface GitState {
+  repository?: GitRepository;
+  branches: GitBranch[];
+  changes: GitFileChange[];
+  commits: GitCommit[];
+  isLoading: boolean;
+  error?: string;
+}
+
+// Git operations
+export interface CloneOptions {
+  url: string;
+  branch?: string;
+  directory?: string;
+}
+
+export interface CommitOptions {
+  message: string;
+  files?: string[];
+}
+
+export interface PushOptions {
+  remote?: string;
+  branch?: string;
+}
+
+export interface PullOptions {
+  remote?: string;
+  branch?: string;
+}

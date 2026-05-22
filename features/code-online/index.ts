@@ -12,6 +12,7 @@ export { default as EditorTabs } from "./components/EditorTabs";
 export { default as TerminalPanel } from "./components/TerminalPanel";
 export { default as StatusBar } from "./components/StatusBar";
 export { default as ActivityBar } from "./components/ActivityBar";
+export { default as GitPanel } from "./components/GitPanel";
 
 // Types
 export type {
@@ -24,4 +25,13 @@ export type {
   ActivityView,
   CodeOnlineState,
   EditorPosition,
+  GitRepository,
+  GitCommit,
+  GitFileChange,
+  GitBranch,
+  GitState,
+  CloneOptions,
+  CommitOptions,
+  PushOptions,
+  PullOptions,
 } from "./types";

@@ -111,4 +111,88 @@ describe("CodeOnline Types", () => {
       expect(line.type).toBe("error");
     });
   });
+
+  describe("Git Types", () => {
+    it("should define GitRepository structure correctly", () => {
+      const repo = {
+        id: "1",
+        name: "test-repo",
+        url: "https://github.com/user/test-repo",
+        branch: "main",
+        isPrivate: false,
+      };
+
+      expect(repo.name).toBe("test-repo");
+      expect(repo.branch).toBe("main");
+      expect(repo.isPrivate).toBe(false);
+    });
+
+    it("should define GitCommit structure correctly", () => {
+      const commit = {
+        id: "abc123",
+        message: "Initial commit",
+        author: "John Doe",
+        timestamp: new Date(),
+        sha: "abc123def456",
+      };
+
+      expect(commit.message).toBe("Initial commit");
+      expect(commit.author).toBe("John Doe");
+      expect(commit.sha).toBe("abc123def456");
+    });
+
+    it("should define GitFileChange with correct statuses", () => {
+      const addedChange = {
+        id: "1",
+        path: "new-file.js",
+        status: "added" as const,
+        additions: 10,
+        deletions: 0,
+      };
+
+      const modifiedChange = {
+        id: "2",
+        path: "modified.js",
+        status: "modified" as const,
+        additions: 5,
+        deletions: 3,
+      };
+
+      expect(addedChange.status).toBe("added");
+      expect(modifiedChange.status).toBe("modified");
+    });
+
+    it("should define GitBranch with current and remote flags", () => {
+      const localBranch = {
+        id: "main",
+        name: "main",
+        isCurrent: true,
+        isRemote: false,
+      };
+
+      const remoteBranch = {
+        id: "origin-main",
+        name: "origin/main",
+        isCurrent: false,
+        isRemote: true,
+      };
+
+      expect(localBranch.isCurrent).toBe(true);
+      expect(localBranch.isRemote).toBe(false);
+      expect(remoteBranch.isRemote).toBe(true);
+    });
+
+    it("should define GitState with optional error", () => {
+      const state = {
+        repository: undefined,
+        branches: [],
+        changes: [],
+        commits: [],
+        isLoading: false,
+      };
+
+      expect(state.repository).toBeUndefined();
+      expect(state.isLoading).toBe(false);
+    });
+  });
 });

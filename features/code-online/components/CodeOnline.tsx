@@ -13,10 +13,14 @@ import EditorTabs from "./EditorTabs";
 import TerminalPanel from "./TerminalPanel";
 import StatusBar from "./StatusBar";
 import ActivityBar from "./ActivityBar";
+import GitPanel from "./GitPanel";
 import CodeEditor from "../../code-editor/components/CodeEditor";
 import { Language } from "../../code-editor/types";
+import { getGitService } from "../lib/git-service";
 
 export default function CodeOnline() {
+  const gitService = getGitService();
+  
   const [state, setState] = useState<CodeOnlineState>({
     expandedFolders: new Set(["root"]),
     tabs: [],
@@ -171,8 +175,8 @@ export default function CodeOnline() {
           onViewChange={handleActivityChange} 
         />
 
-        {/* Side Bar (File Explorer, Search, etc.) */}
-        {(state.activeView === "explorer" || state.activeView === "search") && (
+        {/* Side Bar (File Explorer, Search, Git, etc.) */}
+        {(state.activeView === "explorer" || state.activeView === "search" || state.activeView === "git") && (
           <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
             <div className="p-2 text-xs font-semibold text-gray-400 uppercase">
               {state.activeView}
@@ -183,6 +187,9 @@ export default function CodeOnline() {
                 onFileSelect={handleFileSelect}
                 expandedFolders={state.expandedFolders}
               />
+            )}
+            {state.activeView === "git" && (
+              <GitPanel gitService={gitService} />
             )}
           </div>
         )}
