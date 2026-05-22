@@ -21,3 +21,20 @@ export interface LanguageOption {
   name: string;
   icon: string;
 }
+
+/**
+ * Python Cell Types for Google Colab-like interface
+ */
+export interface PythonCell {
+  id: string;
+  code: string;
+  output: string;
+  isRunning: boolean;
+  order: number;
+}
+
+export interface PythonCellState {
+  cells: PythonCell[];
+  pyodideReady: boolean;
+  isLoading: boolean;
+}

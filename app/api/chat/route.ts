@@ -1,3 +1,13 @@
+/**
+ * AI Chat API Route (Next.js App Router)
+ * 
+ * This API route acts as a proxy to OpenRouter.
+ * When using the external microservice, set NEXT_PUBLIC_USE_MICROSERVICE=true
+ * and the frontend will call the microservice directly instead.
+ * 
+ * The microservice implementation is in /ai-chat-api/index.js
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { FREE_MODELS } from "@/features/ai-chat";
 
@@ -76,6 +86,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
+        "X-Usage-In-Stream": "true", // Signal that usage data is in the stream
       },
     });
   } catch (error) {

@@ -18,6 +18,8 @@ interface ChatHistoryContextType {
   deleteSession: (id: string) => void;
   updateSession: (id: string, messages: Message[], model: string) => void;
   updateSessionTitle: (id: string, title: string) => void;
+  updateTokenUsage: (id: string, promptTokens: number, completionTokens: number, totalTokens: number, toolCallsCount?: number) => void;
+  getLastUsage: () => { promptTokens: number; completionTokens: number; totalTokens: number } | null;
 }
 
 const ChatHistoryContext = createContext<ChatHistoryContextType | undefined>(undefined);
@@ -126,6 +128,48 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateTokenUsage = (id: string, promptTokens: number, completionTokens: number, totalTokens: number, toolCallsCount: number = 0) => {
+    setSessions((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          const currentPrompt = s.totalPromptTokens || 0;
+          const currentCompletion = s.totalCompletionTokens || 0;
+          const currentTotal = s.totalTokens || 0;
+          return {
+            ...s,
+            totalPromptTokens: currentPrompt + promptTokens,
+            totalCompletionTokens: currentCompletion + completionTokens,
+            totalTokens: currentTotal + totalTokens,
+            toolCallsCount: (s.toolCallsCount || 0) + toolCallsCount,
+            updatedAt: Date.now(),
+          };
+        }
+        return s;
+      })
+    );
+
+    if (currentSession?.id === id) {
+      setCurrentSession((prev) =>
+        prev
+          ? {
+              ...prev,
+              totalPromptTokens: (prev.totalPromptTokens || 0) + promptTokens,
+              totalCompletionTokens: (prev.totalCompletionTokens || 0) + completionTokens,
+              totalTokens: (prev.totalTokens || 0) + totalTokens,
+              toolCallsCount: (prev.toolCallsCount || 0) + toolCallsCount,
+              updatedAt: Date.now(),
+            }
+          : null
+      );
+    }
+  };
+
+  const getLastUsage = () => {
+    if (!currentSession) return null;
+    const lastAssistantMessage = [...currentSession.messages].reverse().find((m) => m.role === "assistant");
+    return lastAssistantMessage?.usage || null;
+  };
+
   return (
     <ChatHistoryContext.Provider
       value={{
@@ -136,6 +180,8 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
         deleteSession,
         updateSession,
         updateSessionTitle,
+        updateTokenUsage,
+        getLastUsage,
       }}
     >
       {children}

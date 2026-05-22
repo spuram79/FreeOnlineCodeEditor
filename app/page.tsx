@@ -20,7 +20,7 @@ export default function LandingPage() {
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
           {/* AI Chatbot Card */}
           <Link href="/ai-chat" className="group">
             <div className="flex flex-col items-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600">
@@ -62,13 +62,34 @@ export default function LandingPage() {
               </div>
             </div>
           </Link>
+
+          {/* CodeOnline Card */}
+          <Link href="/code-online" className="group">
+            <div className="flex flex-col items-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600">
+              <div className="w-24 h-24 mb-6 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2m6 6v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8m16 0V9a2 2 0 00-2-2H7a2 2 0 00-2 2v2m12 4h4m-4 0l-2-2m2 2l-2 2" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">CodeOnline</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                Full VSCode-like online editor with file explorer, tabs, terminal, and more.
+              </p>
+              <div className="mt-4 flex items-center gap-2 text-indigo-500 dark:text-indigo-400">
+                <span className="text-sm font-medium">Open CodeOnline</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </Link>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="w-full max-w-4xl mx-auto px-4 py-6 text-center">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Made with ❤️ by Santosh Puram • AI Chat & Code Editor
+          Made with ❤️ by Santosh Puram • AI Chat & Code Editor & CodeOnline
         </p>
       </footer>
     </div>

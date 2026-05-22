@@ -7,6 +7,51 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Code Editor** - Edit HTML, CSS, JavaScript, Python, C#, and Java with live preview
 - **AI Chat** - Chat with 30+ free AI models from OpenRouter
 
+## Documentation
+
+Comprehensive technical documentation is available in the `/docs` directory:
+
+- [Technical Overview](./docs/TECHNICAL_DOCS.md) - Architecture, data flow, and project structure
+- [AI Chat Documentation](./docs/ai-chat-docs.md) - Component hierarchy, state management, and API integration
+- [Code Editor Documentation](./docs/code-editor-docs.md) - Editor components, Python Colab mode, and execution flow
+- [API Documentation](./docs/api-docs.md) - API routes documentation
+
+## Microservice (Optional)
+
+The AI Chat API can be run as a standalone microservice, allowing you to use it from any application:
+
+```bash
+# Navigate to the microservice directory
+cd ai-chat-api
+
+# Use Docker Compose (recommended)
+docker-compose up -d
+
+# Or run directly with Node.js
+npm install
+OPENROUTER_API_KEY=your_key npm start
+```
+
+To use the microservice from this app, set the environment variable:
+```
+NEXT_PUBLIC_USE_MICROSERVICE=true
+NEXT_PUBLIC_MICROSERVICE_URL=http://localhost:3001
+```
+
+See [ai-chat-api/README.md](./ai-chat-api/README.md) for more details.
+
+## MCP Server (Optional)
+
+Use the AI Chat API from any MCP-compatible client (like Claude Desktop):
+
+```bash
+cd ai-chat-mcp
+npm install
+OPENROUTER_API_KEY=your_key node index.js
+```
+
+See [ai-chat-mcp/README.md](./ai-chat-mcp/README.md) for configuration examples.
+
 ## AI Chat
 
 The AI Chat app uses free models from [OpenRouter](https://openrouter.ai/models). To use it:

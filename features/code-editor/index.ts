@@ -8,13 +8,17 @@
 // Components
 export { default as CodeEditor } from "./components/CodeEditor";
 export { default as LanguageDropdown } from "./components/LanguageDropdown";
+export { PythonCellContainer } from "./components/PythonCell";
 
 // Types
-export type { Language, CodeState, LanguageOption } from "./types";
+export type { Language, CodeState, LanguageOption, PythonCell, PythonCellState } from "./types";
 export { LANGUAGES } from "./components/LanguageDropdown";
 
-// Templates
+// Templates (starter code for different languages)
 export { defaultHtml, defaultCss, defaultJs } from "./lib/web-templates";
 export { defaultPython } from "./lib/python-template";
 export { defaultCSharp } from "./lib/csharp-template";
 export { defaultJava } from "./lib/java-template";
+
+// Hooks
+export { usePythonCells } from "./lib/usePythonCells";
