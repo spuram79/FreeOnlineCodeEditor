@@ -7,6 +7,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - **Code Editor** - Edit HTML, CSS, JavaScript, Python, C#, and Java with live preview
 - **AI Chat** - Chat with 30+ free AI models from OpenRouter
 
+## Documentation
+
+Comprehensive technical documentation is available in the `/docs` directory:
+
+- [Technical Overview](./docs/TECHNICAL_DOCS.md) - Architecture, data flow, and project structure
+- [AI Chat Documentation](./docs/ai-chat-docs.md) - Component hierarchy, state management, and API integration
+- [Code Editor Documentation](./docs/code-editor-docs.md) - Editor components, Python Colab mode, and execution flow
+
 ## AI Chat
 
 The AI Chat app uses free models from [OpenRouter](https://openrouter.ai/models). To use it:
