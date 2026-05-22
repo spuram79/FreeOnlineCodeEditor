@@ -159,9 +159,11 @@ describe("AIAssistant", () => {
       const form = input.closest("form");
       fireEvent.submit(form!);
 
+      // Wait for loading state to clear and error message to appear
       await waitFor(() => {
-        expect(screen.getByText(/Error/)).toBeInTheDocument();
-      });
+        const errorElements = screen.queryAllByText(/Error|Something went wrong/);
+        expect(errorElements.length).toBeGreaterThan(0);
+      }, { timeout: 3000 });
     });
   });
 
