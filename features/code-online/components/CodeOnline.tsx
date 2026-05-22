@@ -280,12 +280,14 @@ export default function CodeOnline() {
         setLocalFolderHandle(folder.handle);
         const structure = await readDirectory(folder.handle, '/');
         setRootFolder(structure);
+        // Auto-expand all folders for the new structure
+        setExpandedFolders(expandAllFolders(structure));
         setState(prev => ({ ...prev, activeView: 'explorer' }));
       }
     } catch (error) {
       console.error('Error opening folder:', error);
     }
-  }, []);
+  }, [expandAllFolders]);
 
   // Load previous folder on mount
   useEffect(() => {
