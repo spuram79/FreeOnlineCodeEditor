@@ -40,6 +40,18 @@ NEXT_PUBLIC_MICROSERVICE_URL=http://localhost:3001
 
 See [ai-chat-api/README.md](./ai-chat-api/README.md) for more details.
 
+## MCP Server (Optional)
+
+Use the AI Chat API from any MCP-compatible client (like Claude Desktop):
+
+```bash
+cd ai-chat-mcp
+npm install
+OPENROUTER_API_KEY=your_key node index.js
+```
+
+See [ai-chat-mcp/README.md](./ai-chat-mcp/README.md) for configuration examples.
+
 ## AI Chat
 
 The AI Chat app uses free models from [OpenRouter](https://openrouter.ai/models). To use it:
