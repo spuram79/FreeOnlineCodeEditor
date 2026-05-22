@@ -360,7 +360,11 @@ export default function CodeOnline() {
                     filePath: activeTab?.path || "workspace",
                     language: activeTab?.language || "plaintext",
                     content: activeTab?.content || "// Welcome to Santosh Puram's AI Tools\n// You can explore the workspace and ask me to help with your code",
-                    selection: null,
+                    selection: activeTab?.content ? {
+                      start: 0,
+                      end: activeTab.content.length,
+                      text: activeTab.content
+                    } : null,
                   }}
                   workspaceContext={{
                     rootFolder: rootFolder ? {
@@ -368,6 +372,8 @@ export default function CodeOnline() {
                       path: rootFolder.path,
                       type: rootFolder.type,
                       children: rootFolder.children,
+                      content: activeTab?.content,
+                      language: activeTab?.language,
                     } : undefined
                   }}
                   onApplyChanges={handleApplyAIChanges}
