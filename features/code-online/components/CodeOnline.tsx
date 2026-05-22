@@ -326,6 +326,9 @@ export default function CodeOnline() {
         <span className="text-sm font-semibold">CodeOnline - Visual Studio Code</span>
       </div>
 
+      {/* Menu Bar */}
+      <MenuBar />
+
       {/* Main Container */}
       <div className="flex flex-1 overflow-hidden">
         {/* Activity Bar */}
