@@ -24,6 +24,7 @@ const menus: MenuItem[][] = [
   [
     { label: "New File", command: "workbench.action.newFile" },
     { label: "Open File", command: "workbench.action.openFile" },
+    { label: "Open Code from Folder", command: "workbench.action.openFolder" },
     { label: "Save", command: "workbench.action.save" },
     { label: "Save As", command: "workbench.action.saveAs" },
     { separator: true },
