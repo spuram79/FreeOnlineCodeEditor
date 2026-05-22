@@ -2,7 +2,7 @@
  * CodeOnline Feature - Types Tests
  */
 
-import { FileInfo, EditorTab, Terminal, TerminalLine } from "./types";
+import { FileInfo, EditorTab, Terminal, TerminalLine, LocalFolder, FileSource, RunConfiguration, RunResult, RunState, RunEnvironment } from "./types";
 
 describe("CodeOnline Types", () => {
   describe("FileInfo", () => {
@@ -193,6 +193,113 @@ describe("CodeOnline Types", () => {
 
       expect(state.repository).toBeUndefined();
       expect(state.isLoading).toBe(false);
+    });
+  });
+
+  describe("Local Folder Types", () => {
+    it("should define LocalFolder structure correctly", () => {
+      const folder: LocalFolder = {
+        name: "my-project",
+        handle: {} as FileSystemDirectoryHandle,
+        path: "/my-project",
+      };
+
+      expect(folder.name).toBe("my-project");
+      expect(folder.path).toBe("/my-project");
+    });
+
+    it("should define FileSource as union type", () => {
+      const gitSource: FileSource = "git";
+      const localSource: FileSource = "local";
+      const noneSource: FileSource = "none";
+
+      expect(gitSource).toBe("git");
+      expect(localSource).toBe("local");
+      expect(noneSource).toBe("none");
+    });
+  });
+
+  describe("Run Types", () => {
+    it("should define RunConfiguration structure correctly", () => {
+      const config: RunConfiguration = {
+        id: "config-1",
+        name: "Dev Server",
+        type: "node",
+        command: "npm run dev",
+        workingDirectory: "./",
+      };
+
+      expect(config.id).toBe("config-1");
+      expect(config.name).toBe("Dev Server");
+      expect(config.type).toBe("node");
+      expect(config.command).toBe("npm run dev");
+    });
+
+    it("should define RunConfiguration with optional properties", () => {
+      const config: RunConfiguration = {
+        id: "config-2",
+        name: "Python App",
+        type: "python",
+        command: "python main.py",
+        workingDirectory: "./src",
+        env: { NODE_ENV: "development" },
+        args: ["--verbose"],
+      };
+
+      expect(config.env).toEqual({ NODE_ENV: "development" });
+      expect(config.args).toEqual(["--verbose"]);
+    });
+
+    it("should define RunResult structure correctly", () => {
+      const result: RunResult = {
+        id: "run-1",
+        configurationId: "config-1",
+        startTime: new Date(),
+        status: "running",
+        output: "Process output...",
+      };
+
+      expect(result.id).toBe("run-1");
+      expect(result.status).toBe("running");
+      expect(result.output).toBe("Process output...");
+    });
+
+    it("should define RunResult with completed status", () => {
+      const result: RunResult = {
+        id: "run-2",
+        configurationId: "config-1",
+        startTime: new Date(),
+        endTime: new Date(),
+        status: "success",
+        output: "Completed",
+        exitCode: 0,
+      };
+
+      expect(result.status).toBe("success");
+      expect(result.exitCode).toBe(0);
+    });
+
+    it("should define RunState with configurations and runs", () => {
+      const state: RunState = {
+        configurations: [],
+        activeRuns: [],
+        isRunning: false,
+      };
+
+      expect(state.configurations).toHaveLength(0);
+      expect(state.isRunning).toBe(false);
+    });
+
+    it("should define RunEnvironment as union type", () => {
+      const nodeEnv: RunEnvironment = "node";
+      const pythonEnv: RunEnvironment = "python";
+      const browserEnv: RunEnvironment = "browser";
+      const customEnv: RunEnvironment = "custom";
+
+      expect(nodeEnv).toBe("node");
+      expect(pythonEnv).toBe("python");
+      expect(browserEnv).toBe("browser");
+      expect(customEnv).toBe("custom");
     });
   });
 });

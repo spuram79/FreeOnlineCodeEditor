@@ -4,7 +4,7 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
 import EditorTabs from "./EditorTabs";
-import { EditorTab } from "../../types";
+import { EditorTab } from "../types";
 
 describe("EditorTabs", () => {
   const mockTabs: EditorTab[] = [

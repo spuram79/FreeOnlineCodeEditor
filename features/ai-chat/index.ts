@@ -9,6 +9,7 @@
 export { default as SettingsModal } from "./components/SettingsModal";
 export { default as MessageBubble } from "./components/MessageBubble";
 export { default as ChatHistorySidebar } from "./components/ChatHistorySidebar";
+export { default as AIAssistant } from "./components/AIAssistant";
 
 // Types
 export type { Message, Model, ChatSession, Usage, ToolCall } from "./types";

@@ -13,9 +13,10 @@ import { GitService, getGitService } from "../lib/git-service";
 interface GitPanelProps {
   gitService: GitService;
   onRepositoryChange?: (repo: GitRepository | undefined) => void;
+  onOpenLocalFolder?: () => void;
 }
 
-export default function GitPanel({ gitService, onRepositoryChange }: GitPanelProps) {
+export default function GitPanel({ gitService, onRepositoryChange, onOpenLocalFolder }: GitPanelProps) {
   const [repository, setRepository] = useState<GitRepository | undefined>();
   const [cloneUrl, setCloneUrl] = useState("");
   const [commitMessage, setCommitMessage] = useState("");
@@ -115,8 +116,8 @@ export default function GitPanel({ gitService, onRepositoryChange }: GitPanelPro
         )}
 
         <div className="mt-auto pt-4 text-xs text-gray-500">
-          <p className="mb-1">Example repositories:</p>
-          <div className="space-y-1">
+          <p className="mb-2">Example repositories:</p>
+          <div className="space-y-1 mb-4">
             <button
               onClick={() => setCloneUrl("https://github.com/vercel/next.js.git")}
               className="block w-full text-left hover:text-gray-300"
@@ -134,6 +135,18 @@ export default function GitPanel({ gitService, onRepositoryChange }: GitPanelPro
               className="block w-full text-left hover:text-gray-300"
             >
               • microsoft/vscode
+            </button>
+          </div>
+          
+          <div className="border-t border-gray-700 pt-3">
+            <button
+              onClick={() => onOpenLocalFolder?.()}
+              className="flex items-center gap-2 w-full px-2 py-1 text-xs text-gray-300 hover:bg-gray-700 rounded"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7a2 2 0 012-2h5l2 2h6a2 2 0 012 2v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+              </svg>
+              Open Local Folder
             </button>
           </div>
         </div>

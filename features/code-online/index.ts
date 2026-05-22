@@ -13,6 +13,7 @@ export { default as TerminalPanel } from "./components/TerminalPanel";
 export { default as StatusBar } from "./components/StatusBar";
 export { default as ActivityBar } from "./components/ActivityBar";
 export { default as GitPanel } from "./components/GitPanel";
+export { default as RunPanel } from "./components/RunPanel";
 
 // Types
 export type {
@@ -34,4 +35,10 @@ export type {
   CommitOptions,
   PushOptions,
   PullOptions,
+  FileSource,
+  LocalFolder,
+  RunConfiguration,
+  RunResult,
+  RunState,
+  RunEnvironment,
 } from "./types";

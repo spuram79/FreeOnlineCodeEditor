@@ -51,7 +51,7 @@ export interface StatusBarItem {
 }
 
 // Activity bar types
-export type ActivityView = 'explorer' | 'search' | 'git' | 'debug' | 'extensions' | 'terminal';
+export type ActivityView = 'explorer' | 'search' | 'git' | 'debug' | 'extensions' | 'terminal' | 'run';
 
 export interface ActivityItem {
   id: ActivityView;
@@ -154,4 +154,55 @@ export interface PushOptions {
 export interface PullOptions {
   remote?: string;
   branch?: string;
+}
+
+// Local folder types
+export type FileSource = 'git' | 'local' | 'none';
+
+export interface LocalFolder {
+  name: string;
+  handle: FileSystemDirectoryHandle;
+  path: string;
+}
+
+export interface OpenFolderOptions {
+  source: FileSource;
+  folder?: LocalFolder;
+  gitUrl?: string;
+  branch?: string;
+}
+
+// Run configuration types
+export type RunEnvironment = 'node' | 'python' | 'browser' | 'custom';
+
+export interface RunConfiguration {
+  id: string;
+  name: string;
+  type: RunEnvironment;
+  command: string;
+  workingDirectory?: string;
+  env?: Record<string, string>;
+  args?: string[];
+  outputFile?: string;
+  apiKey?: {
+    openrouter?: string;
+  };
+}
+
+export interface RunResult {
+  id: string;
+  configurationId: string;
+  startTime: Date;
+  endTime?: Date;
+  status: 'running' | 'success' | 'error' | 'stopped';
+  output: string;
+  error?: string;
+  exitCode?: number;
+}
+
+export interface RunState {
+  configurations: RunConfiguration[];
+  activeRuns: RunResult[];
+  lastRun?: RunResult;
+  isRunning: boolean;
 }

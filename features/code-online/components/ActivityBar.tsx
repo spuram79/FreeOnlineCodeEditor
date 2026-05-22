@@ -51,6 +51,15 @@ const activityItems: { id: ActivityView; label: string; icon: React.ReactNode }[
       </svg>
     ),
   },
+  {
+    id: "run",
+    label: "Run",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-6.518-3.75A1 1 0 007 8.75v6.5a1 1 0 001.23.97l6.518-3.75a1 1 0 000-1.764z" />
+      </svg>
+    ),
+  },
 ];
 
 export default function ActivityBar({ activeView, onViewChange }: ActivityBarProps) {
