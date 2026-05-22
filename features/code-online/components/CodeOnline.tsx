@@ -18,12 +18,26 @@ import RunPanel from "./RunPanel";
 import CodeEditor from "../../code-editor/components/CodeEditor";
 import { Language } from "../../code-editor/types";
 import { getGitService } from "../lib/git-service";
-import { openLocalFolder, readDirectory } from "../lib/local-file-utils";
+import { openLocalFolder, readDirectory, reopenLastFolder } from "../lib/local-file-utils";
 import { AIAssistant } from "@/features/ai-chat";
+import { useEffect } from "react";
 
 export default function CodeOnline() {
   const gitService = getGitService();
   
+  // Helper to expand all folders by default
+  const expandAllFolders = useCallback((folder: FileInfo): Set<string> => {
+    const expanded = new Set<string>();
+    const expandRecursively = (node: FileInfo) => {
+      if (node.type === 'folder') {
+        expanded.add(node.id);
+        node.children?.forEach(expandRecursively);
+      }
+    };
+    expandRecursively(folder);
+    return expanded;
+  }, []);
+
   const [state, setState] = useState<CodeOnlineState>({
     expandedFolders: new Set(["root"]),
     tabs: [],
@@ -76,6 +90,9 @@ export default function CodeOnline() {
       { id: "package", name: "package.json", path: "/package.json", type: "file", extension: "json", language: "json", content: '{ "name": "my-project" }' },
     ],
   });
+
+  // Auto-expand all folders
+  const [expandedFolders, setExpandedFolders] = useState(() => expandAllFolders(rootFolder));
 
   // State for local folder handle (for File System Access API)
   const [localFolderHandle, setLocalFolderHandle] = useState<FileSystemDirectoryHandle | null>(null);
@@ -269,6 +286,28 @@ export default function CodeOnline() {
       console.error('Error opening folder:', error);
     }
   }, []);
+
+  // Load previous folder on mount
+  useEffect(() => {
+    const loadPreviousFolder = async () => {
+      try {
+        const folder = await reopenLastFolder();
+        if (folder) {
+          setLocalFolderHandle(folder.handle);
+          const structure = await readDirectory(folder.handle, '/');
+          setRootFolder(structure);
+          // Update expanded folders for the new structure
+          setExpandedFolders(expandAllFolders(structure));
+          console.log('Reopened previous folder:', folder.name);
+        }
+      } catch (error) {
+        // No previous folder or user denied access - this is fine
+        console.log('No previous folder to reopen');
+      }
+    };
+
+    loadPreviousFolder();
+  }, [expandAllFolders]); // Only run on mount
 
   const activeTab = state.tabs.find(t => t.id === state.activeTabId);
 

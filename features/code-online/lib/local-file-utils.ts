@@ -149,6 +149,37 @@ export async function openLocalFolder(): Promise<LocalFolder | null> {
 }
 
 /**
+ * Reopen the previously selected folder (if user granted persistent permission)
+ * This uses showDirectoryPicker with an id to recall previous entries
+ */
+export async function reopenLastFolder(): Promise<LocalFolder | null> {
+  // Check if File System Access API is supported
+  if (!('showDirectoryPicker' in window)) {
+    return null;
+  }
+
+  try {
+    // Try to reopen with the same id - browser handles persistence
+    // @ts-ignore - File System Access API types
+    const handle: FileSystemDirectoryHandle = await window.showDirectoryPicker({
+      id: 'codeonline-folder',
+      mode: 'read',
+      startIn: 'workspace', // Start in workspace area
+    });
+    
+    return {
+      name: handle.name,
+      handle,
+      path: `/${handle.name}`,
+    };
+  } catch (error) {
+    // User cancelled or no previous folder
+    console.log('No previous folder to reopen:', error);
+    return null;
+  }
+}
+
+/**
  * Get file handle from directory handle
  */
 export async function getFileHandle(
