@@ -1,13 +1,15 @@
 {
   "mcpServers": {
-    "ai-chat": {
+    "ai-chat-stdio": {
       "command": "node",
       "args": ["/path/to/eager-crimson-vicuna/ai-chat-mcp/index.js"],
       "env": {
         "OPENROUTER_API_KEY": "your_openrouter_api_key_here",
-        "AI_CHAT_API_URL": "http://localhost:3001",
-        "AI_CHAT_DEFAULT_MODEL": "openrouter/free"
+        "AI_CHAT_API_URL": "http://localhost:3001"
       }
+    },
+    "ai-chat-http": {
+      "url": "http://your-server-ip:3002/mcp"
     }
   }
 }

@@ -12,6 +12,7 @@ The Model Context Protocol (MCP) is a standard way for AI assistants to interact
 - **List available models** - Browse all free models from OpenRouter
 - **Health monitoring** - Check if the AI Chat API is running
 - **Usage tracking** - See token usage for each response
+- **Dual transport modes** - Supports stdio (local) and HTTP/SSE (remote)
 
 ## Prerequisites
 
@@ -30,11 +31,27 @@ npm install
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `OPENROUTER_API_KEY` | Your OpenRouter API key | Yes (or pass per request) |
-| `AI_CHAT_API_URL` | URL of the AI Chat API microservice | No (default: `http://localhost:3001`) |
-| `AI_CHAT_DEFAULT_MODEL` | Default model to use | No (default: `openrouter/free`) |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENROUTER_API_KEY` | Your OpenRouter API key | Required (or pass per request) |
+| `AI_CHAT_API_URL` | URL of the AI Chat API microservice | `http://localhost:3001` |
+| `AI_CHAT_DEFAULT_MODEL` | Default model to use | `openrouter/free` |
+| `MCP_PORT` | Port for HTTP mode | `3002` |
+| `MCP_TRANSPORT` | Transport mode: `stdio` or `http` | `stdio` |
+
+### Transport Modes
+
+**stdio mode** (default) - For local clients like Claude Desktop:
+```bash
+OPENROUTER_API_KEY=your_key node index.js
+```
+
+**HTTP/SSE mode** - For remote clients like VSCode:
+```bash
+MCP_TRANSPORT=http OPENROUTER_API_KEY=your_key node index.js
+```
+
+## Usage
 
 ### Claude Desktop Configuration
 
@@ -54,15 +71,58 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
 }
 ```
 
-### Using with Other MCP Clients
+### VSCode Configuration (Remote Access)
+
+#### Option 1: Using the MCP extension
+
+For VSCode with MCP support, configure the server URL:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "ai-chat": {
+        "url": "http://your-server-ip:3002/mcp"
+      }
+    }
+  }
+}
+```
+
+#### Option 2: Manual HTTP API Access
+
+The HTTP mode provides these endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/mcp` | GET | SSE connection for MCP protocol |
+| `/mcp` | POST | Send MCP messages (requires `Mcp-Session-Id` header) |
+| `/health` | GET | Health check endpoint |
+| `/tools` | GET | List available tools |
+
+**Example curl request:**
+```bash
+# First, establish SSE connection to get session ID
+curl -N http://localhost:3002/mcp
+
+# Then send MCP messages using the session ID
+curl -X POST http://localhost:3002/mcp \
+  -H "Content-Type: application/json" \
+  -H "Mcp-Session-Id: your-session-id" \
+  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
+```
+
+#### Option 3: Run via ngrok for public access
 
 ```bash
-# Run directly
-OPENROUTER_API_KEY=your_key node index.js
+# Start in HTTP mode
+MCP_TRANSPORT=http OPENROUTER_API_KEY=your_key node index.js
 
-# With custom API URL
-AI_CHAT_API_URL=http://your-server:3001 OPENROUTER_API_KEY=your_key node index.js
+# Expose via ngrok
+ngrok http 3002
 ```
+
+Then configure VSCode with the ngrok URL.
 
 ## Available Tools
 
@@ -149,16 +209,38 @@ The server returns appropriate error messages when:
 # Install dependencies
 npm install
 
-# Run the server (requires OPENROUTER_API_KEY)
+# Run in stdio mode (for Claude Desktop)
 OPENROUTER_API_KEY=your_key node index.js
+
+# Run in HTTP mode (for VSCode remote)
+MCP_TRANSPORT=http OPENROUTER_API_KEY=your_key node index.js
+
+# With Docker
+docker build -t ai-chat-mcp .
+docker run -p 3002:3002 -e OPENROUTER_API_KEY=your_key -e MCP_TRANSPORT=http ai-chat-mcp
 ```
 
 ## Architecture
 
+### Stdio Mode (Local)
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   MCP Client    │────▶│  MCP Server     │────▶│  AI Chat API    │
-│ (Claude, etc.)  │     │ (This package)  │     │ (Microservice)  │
+│ (Claude Desktop)│     │ (This package)  │     │ (Microservice)  │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                │
+                                ▼
+                        ┌─────────────────┐
+                        │  OpenRouter     │
+                        │  (30+ models)   │
+                        └─────────────────┘
+```
+
+### HTTP/SSE Mode (Remote)
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   VSCode        │────▶│  MCP Server     │────▶│  AI Chat API    │
+│ (MCP Client)    │     │ (HTTP/SSE)      │     │ (Microservice)  │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
                                 │
                                 ▼
