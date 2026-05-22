@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
+        "X-Usage-In-Stream": "true", // Signal that usage data is in the stream
       },
     });
   } catch (error) {

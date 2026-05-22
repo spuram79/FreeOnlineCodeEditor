@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Message, Model, FREE_MODELS, ChatHistoryProvider, useChatHistory, ChatHistorySidebar } from "@/features/ai-chat";
+import { Message, Model, FREE_MODELS, ChatHistoryProvider, useChatHistory, ChatHistorySidebar, ToolCall } from "@/features/ai-chat";
 
 function ChatPageContent() {
   const [input, setInput] = useState("");
@@ -11,12 +11,19 @@ function ChatPageContent() {
   const [apiKey, setApiKey] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { currentSession, createNewSession, updateSession, selectSession } = useChatHistory();
+  const { currentSession, createNewSession, updateSession, selectSession, updateTokenUsage } = useChatHistory();
   const messages = currentSession?.messages || [];
   const sessionId = currentSession?.id;
+  
+  // Get cumulative token usage for the current session
+  const totalPromptTokens = currentSession?.totalPromptTokens || 0;
+  const totalCompletionTokens = currentSession?.totalCompletionTokens || 0;
+  const totalTokens = currentSession?.totalTokens || 0;
 
   useEffect(() => {
     // Load API key from localStorage if available
@@ -62,6 +69,7 @@ function ChatPageContent() {
     const userMessages: Message[] = [...messages, { role: "user", content: userMessage }];
     updateSession(sessionId!, userMessages, selectedModel);
     setIsLoading(true);
+    setStatusMessage("Connecting to " + (models.find((m) => m.id === selectedModel)?.name || selectedModel) + "...");
 
     // Create abort controller for cancellation
     abortControllerRef.current = new AbortController();
@@ -91,6 +99,8 @@ function ChatPageContent() {
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = "";
+      let usageData: { promptTokens: number; completionTokens: number; totalTokens: number } | null = null;
+      let toolCallsData: ToolCall[] | null = null;
 
       while (reader) {
         const { done, value } = await reader.read();
@@ -108,6 +118,27 @@ function ChatPageContent() {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content || "";
               assistantMessage += content;
+              
+              // Update status message while streaming
+              if (content && statusMessage !== "Generating response...") {
+                setStatusMessage("Generating response...");
+              }
+              
+              // Capture tool calls from the response
+              if (parsed.choices?.[0]?.delta?.tool_calls) {
+                toolCallsData = parsed.choices[0].delta.tool_calls as ToolCall[];
+                setStatusMessage("Using tools: " + toolCallsData?.map(t => t.function.name).join(", "));
+              }
+              
+              // Capture usage data from the response
+              if (parsed.usage) {
+                usageData = {
+                  promptTokens: parsed.usage.prompt_tokens,
+                  completionTokens: parsed.usage.completion_tokens,
+                  totalTokens: parsed.usage.total_tokens,
+                };
+              }
+              
               const updatedMessages: Message[] = [
                 ...userMessages,
                 { role: "assistant", content: assistantMessage }
@@ -119,13 +150,39 @@ function ChatPageContent() {
           }
         }
       }
+      
+      // Update token usage after streaming is complete
+      if (usageData) {
+        updateTokenUsage(
+          sessionId!, 
+          usageData.promptTokens, 
+          usageData.completionTokens, 
+          usageData.totalTokens,
+          toolCallsData?.length || 0
+        );
+        
+        // Update the last assistant message with usage info and tool calls
+        const updatedMessagesWithUsage: Message[] = [
+          ...userMessages,
+          { 
+            role: "assistant", 
+            content: assistantMessage, 
+            usage: usageData,
+            toolCalls: toolCallsData || undefined
+          }
+        ];
+        updateSession(sessionId!, updatedMessagesWithUsage, selectedModel);
+      }
     } catch (error: any) {
       if (error.name !== "AbortError") {
         const errorMessages: Message[] = [...userMessages, { role: "assistant", content: `Error: ${error.message || "Something went wrong"}` }];
         updateSession(sessionId!, errorMessages, selectedModel);
+        setStatusMessage("Error: " + (error.message || "Something went wrong"));
       }
     } finally {
       setIsLoading(false);
+      // Clear status after a delay
+      setTimeout(() => setStatusMessage(""), 3000);
       abortControllerRef.current = null;
     }
   };
@@ -210,17 +267,129 @@ function ChatPageContent() {
                     {message.role === "user" ? "U" : "AI"}
                   </span>
                 </div>
-                <div className={`px-4 py-3 rounded-lg ${
+                <div className={`px-4 py-3 rounded-lg relative group shadow-sm ${
                   message.role === "user"
                     ? "bg-blue-500 text-white"
                     : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
                 }`}>
-                  <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                  {message.toolCalls && message.toolCalls.length > 0 && (
+                    <div className="mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                        Tool Calls ({message.toolCalls.length})
+                      </div>
+                      {message.toolCalls.map((tool, toolIndex) => (
+                        <div key={toolIndex} className="mt-1 px-2 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-purple-600 dark:text-purple-400">{tool.function.name}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(tool.function.arguments);
+                                setCopiedIndex(index);
+                                setTimeout(() => setCopiedIndex(null), 2000);
+                              }}
+                              className="p-0.5 text-gray-400 hover:text-gray-600 rounded"
+                              title="Copy arguments"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            </button>
+                          </div>
+                          <pre className="text-xs text-gray-600 dark:text-gray-300 mt-1 overflow-x-auto max-h-20">
+                            {JSON.stringify(JSON.parse(tool.function.arguments), null, 2)}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                  {message.role === "assistant" && (
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(message.content);
+                        setCopiedIndex(index);
+                        setTimeout(() => setCopiedIndex(null), 2000);
+                      }}
+                      className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                      title={copiedIndex === index ? "Copied!" : "Copy to clipboard"}
+                    >
+                      {copiedIndex === index ? (
+                        <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Status Bar */}
+      {isLoading && statusMessage && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border-t border-blue-200 dark:border-blue-800 px-4 py-2">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">{statusMessage}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Model Indicator - Professional Display */}
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {models.find((m) => m.id === selectedModel)?.name || selectedModel}
+                </span>
+              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
+                {models.find((m) => m.id === selectedModel)?.description || "AI Assistant"}
+              </span>
+            </div>
+            {totalTokens > 0 && (
+              <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-gray-500 dark:text-gray-400">Prompt:</span>
+                  <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{totalPromptTokens.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-gray-500 dark:text-gray-400">Completion:</span>
+                  <span className="font-mono font-medium text-gray-700 dark:text-gray-300">{totalCompletionTokens.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 rounded">
+                  <span className="text-blue-600 dark:text-blue-400">Total:</span>
+                  <span className="font-mono font-semibold text-blue-700 dark:text-blue-300">{totalTokens.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+            {(currentSession?.toolCallsCount ?? 0) > 0 && (
+              <div className="flex items-center gap-1.5 mt-2 text-xs">
+                <svg className="w-3.5 h-3.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <span className="text-gray-500 dark:text-gray-400">Tool Calls:</span>
+                <span className="font-medium text-purple-600 dark:text-purple-400">{currentSession?.toolCallsCount}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
