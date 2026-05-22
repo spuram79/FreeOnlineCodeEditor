@@ -15,6 +15,7 @@ import StatusBar from "./StatusBar";
 import ActivityBar from "./ActivityBar";
 import GitPanel from "./GitPanel";
 import RunPanel from "./RunPanel";
+import ResizablePanel from "./ResizablePanel";
 import CodeEditor from "../../code-editor/components/CodeEditor";
 import { Language } from "../../code-editor/types";
 import { getGitService } from "../lib/git-service";
@@ -106,6 +107,10 @@ export default function CodeOnline() {
   // AI Assistant state
   const [showAIAssistant, setShowAIAssistant] = useState(true);
   const [aiSelectedModel, setAiSelectedModel] = useState<string>("openrouter/free");
+  
+  // Panel sizes (percentages)
+  const [explorerSize, setExplorerSize] = useState(25);
+  const [aiAssistantSize, setAiAssistantSize] = useState(30);
 
   // Get the API key from the most recent configuration
   const aiApiKey = runState.configurations.length > 0 
@@ -330,7 +335,13 @@ export default function CodeOnline() {
 
         {/* Side Bar (File Explorer, Search, Git, Run, etc.) */}
         {(state.activeView === "explorer" || state.activeView === "search" || state.activeView === "git" || state.activeView === "run") && (
-          <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+          <ResizablePanel
+            initialSize={explorerSize}
+            minSize={15}
+            maxSize={50}
+            onResize={setExplorerSize}
+            className="bg-gray-800 border-r border-gray-700 flex flex-col"
+          >
             <div className="p-2 text-xs font-semibold text-gray-400 uppercase">
               {state.activeView}
             </div>
@@ -352,7 +363,7 @@ export default function CodeOnline() {
                 activeRuns={runState.activeRuns}
               />
             )}
-          </div>
+          </ResizablePanel>
         )}
 
         {/* Editor Area */}
@@ -395,7 +406,12 @@ export default function CodeOnline() {
               </div>
 
               {/* AI Assistant Panel */}
-              <div className="w-80 border-l border-gray-700 flex-shrink-0">
+              <ResizablePanel
+                initialSize={aiAssistantSize}
+                minSize={20}
+                maxSize={50}
+                onResize={setAiAssistantSize}
+              >
                 <AIAssistant
                   editorContext={{
                     filePath: activeTab?.path || "workspace",
@@ -422,7 +438,7 @@ export default function CodeOnline() {
                   selectedModel={aiSelectedModel}
                   onModelChange={setAiSelectedModel}
                 />
-              </div>
+              </ResizablePanel>
             </div>
           </div>
 
