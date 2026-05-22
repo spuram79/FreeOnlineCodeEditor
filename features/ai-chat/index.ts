@@ -16,3 +16,4 @@ export type { Message, Model, ChatSession, Usage, ToolCall } from "./types";
 // Lib
 export { FREE_MODELS, DEFAULT_MODEL } from "./lib/models";
 export { ChatHistoryProvider, useChatHistory } from "./lib/chat-history-context";
+export { USE_MICROSERVICE, MICROSERVICE_URL, getChatEndpoint, getModelsEndpoint } from "./lib/microservice-config";

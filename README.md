@@ -14,6 +14,31 @@ Comprehensive technical documentation is available in the `/docs` directory:
 - [Technical Overview](./docs/TECHNICAL_DOCS.md) - Architecture, data flow, and project structure
 - [AI Chat Documentation](./docs/ai-chat-docs.md) - Component hierarchy, state management, and API integration
 - [Code Editor Documentation](./docs/code-editor-docs.md) - Editor components, Python Colab mode, and execution flow
+- [API Documentation](./docs/api-docs.md) - API routes documentation
+
+## Microservice (Optional)
+
+The AI Chat API can be run as a standalone microservice, allowing you to use it from any application:
+
+```bash
+# Navigate to the microservice directory
+cd ai-chat-api
+
+# Use Docker Compose (recommended)
+docker-compose up -d
+
+# Or run directly with Node.js
+npm install
+OPENROUTER_API_KEY=your_key npm start
+```
+
+To use the microservice from this app, set the environment variable:
+```
+NEXT_PUBLIC_USE_MICROSERVICE=true
+NEXT_PUBLIC_MICROSERVICE_URL=http://localhost:3001
+```
+
+See [ai-chat-api/README.md](./ai-chat-api/README.md) for more details.
 
 ## AI Chat
 
