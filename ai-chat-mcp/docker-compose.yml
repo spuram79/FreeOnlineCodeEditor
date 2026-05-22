@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ai-chat-mcp:
+    build: .
+    ports:
+      - "3002:3002"
+    environment:
+      - MCP_TRANSPORT=http
+      - MCP_PORT=3002
+      - OPENROUTER_API_KEY=your_openrouter_api_key_here
+      - AI_CHAT_API_URL=http://host.docker.internal:3001
+    restart: unless-stopped

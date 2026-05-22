@@ -218,6 +218,35 @@ MCP_TRANSPORT=http OPENROUTER_API_KEY=your_key node index.js
 # With Docker
 docker build -t ai-chat-mcp .
 docker run -p 3002:3002 -e OPENROUTER_API_KEY=your_key -e MCP_TRANSPORT=http ai-chat-mcp
+
+# With Docker Compose
+docker-compose up -d
+```
+
+## Docker
+
+### Build and Run
+
+```bash
+# Build
+docker build -t ai-chat-mcp .
+
+# Run
+docker run -p 3002:3002 \
+  -e OPENROUTER_API_KEY=your_key \
+  -e MCP_TRANSPORT=http \
+  -e AI_CHAT_API_URL=http://host.docker.internal:3001 \
+  ai-chat-mcp
+```
+
+### Docker Compose
+
+```bash
+# Create .env file with your API key
+echo "OPENROUTER_API_KEY=your_key" > .env
+
+# Start the service
+docker-compose up -d
 ```
 
 ## Architecture
