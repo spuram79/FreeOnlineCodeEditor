@@ -33,10 +33,15 @@ interface MarkdownRendererProps {
 }
 
 // Configure marked options
-marked.setOptions({
-  breaks: true,
-  gfm: true,
-});
+const configureMarked = () => {
+  if (typeof marked !== 'undefined' && marked.setOptions) {
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+    });
+  }
+};
+configureMarked();
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);

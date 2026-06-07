@@ -6,6 +6,7 @@ const config = {
     "^@/(.*)$": "<rootDir>/$1",
     "^@features/(.*)$": "<rootDir>/features/$1",
     "^@shared/(.*)$": "<rootDir>/shared/$1",
+    "^marked$": "<rootDir>/__mocks__/marked.js",
   },
   testMatch: [
     "**/*.test.ts",

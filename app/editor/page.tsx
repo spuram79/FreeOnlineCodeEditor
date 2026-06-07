@@ -17,7 +17,7 @@ import {
 
 declare global {
   interface Window {
-    loadPyodide: () => Promise<unknown>;
+    loadPyodide: (opts?: { indexURL?: string }) => Promise<unknown>;
     pyodide: {
       runPythonAsync: (code: string) => Promise<unknown>;
       globals: {
@@ -57,10 +57,10 @@ export default function FreeOnlineCodeEditor() {
       script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";
       script.onload = async () => {
         try {
-          const pyodide = await window.loadPyodide({
+          const pyodide = await (window as unknown as { loadPyodide: (opts?: { indexURL?: string }) => Promise<{ runPythonAsync: (code: string) => Promise<unknown>; globals: { get: (name: string) => unknown } }> }).loadPyodide({
             indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/",
           });
-          window.pyodide = pyodide;
+          window.pyodide = pyodide as Window["pyodide"];
           setPyodideReady(true);
           setPythonOutput((prev) => prev + "✓ Python loaded successfully!\n");
         } catch (error) {

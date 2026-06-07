@@ -137,7 +137,7 @@ interface ToolCallParams {
   arguments?: Record<string, unknown>;
 }
 
-async function handleToolCall(id: string | number, params: ToolCallParams) {
+async function handleToolCall(id: string | number, params: ToolCallParams | undefined) {
   const { name, arguments: args } = params || {};
   
   switch (name) {
@@ -269,7 +269,8 @@ async function handleToolCall(id: string | number, params: ToolCallParams) {
   }
 }
 
-function handleInitialize(id: string | number) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function handleInitialize(id: string | number, _params: unknown) {
   return NextResponse.json({
     jsonrpc: "2.0",
     id,

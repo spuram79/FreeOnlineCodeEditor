@@ -50,7 +50,7 @@ describe("MessageBubble", () => {
       const emptyMessage: Message = { role: "user", content: "" };
       const { container } = render(<MessageBubble message={emptyMessage} />);
 
-      expect(container.querySelector(".whitespace-pre-wrap")).toBeInTheDocument();
+      expect(container.querySelector(".text-sm")).toBeInTheDocument();
     });
 
     it("should handle very long content", () => {

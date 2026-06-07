@@ -78,7 +78,7 @@ export default function CodeBlock({ code, language = "text" }: CodeBlockProps) {
       </div>
       <pre className="p-4 overflow-x-auto">
         <code className={`language-${displayLanguage} text-sm font-mono text-gray-800 dark:text-gray-200`}>
-          {displayCode}
+          {code}
         </code>
       </pre>
     </div>

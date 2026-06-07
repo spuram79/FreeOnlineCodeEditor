@@ -169,7 +169,7 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         if (data.sessions && data.sessions.length > 0) {
-          const dbSessions: ChatSession[] = data.sessions.map((s) => ({
+          const dbSessions: ChatSession[] = data.sessions.map((s: { id: string; title: string; model: string; focus_mode?: string; created_at: string; updated_at: string }) => ({
             id: s.id,
             title: s.title,
             messages: [],
