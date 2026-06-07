@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Message, Model, FREE_MODELS, ChatHistoryProvider, useChatHistory, ChatHistorySidebar } from "@/features/ai-chat";
+import { Message, Model, Source, FocusMode, FREE_MODELS, FOCUS_MODES, ChatHistoryProvider, useChatHistory, ChatHistorySidebar, MessageBubble } from "@/features/ai-chat";
 
 function ChatPageContent() {
   const [input, setInput] = useState("");
@@ -11,10 +11,11 @@ function ChatPageContent() {
   const [apiKey, setApiKey] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [selectedFocusMode, setSelectedFocusMode] = useState<FocusMode | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { currentSession, createNewSession, updateSession, selectSession } = useChatHistory();
+  const { currentSession, createNewSession, updateSession, selectSession, updateSessionFocusMode, deleteAllSessions } = useChatHistory();
   const messages = currentSession?.messages || [];
   const sessionId = currentSession?.id;
 
@@ -29,9 +30,9 @@ function ChatPageContent() {
   // Create a new session if none exists
   useEffect(() => {
     if (!currentSession) {
-      createNewSession(selectedModel);
+      handleNewChat();
     }
-  }, [currentSession, createNewSession, selectedModel]);
+  }, [currentSession]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,8 +43,25 @@ function ChatPageContent() {
     localStorage.setItem("openrouter_api_key", key);
   };
 
-  const handleNewChat = () => {
-    createNewSession(selectedModel);
+  const handleNewChat = async () => {
+    if (currentSession) {
+      // Save current session before creating new one
+      await updateSession(currentSession.id, currentSession.messages, selectedModel);
+    }
+    await createNewSession(selectedModel, selectedFocusMode);
+  };
+
+  const handleFocusModeChange = (mode: FocusMode | undefined) => {
+    setSelectedFocusMode(mode);
+    if (sessionId) {
+      updateSessionFocusMode(sessionId, mode);
+    }
+  };
+
+  const handleDeleteAllSessions = async () => {
+    if (confirm('Delete all conversations? This cannot be undone.')) {
+      await deleteAllSessions();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

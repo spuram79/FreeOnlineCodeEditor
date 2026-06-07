@@ -21,18 +21,26 @@ export default function ChatHistorySidebar({
   onClose,
   onNewChat,
 }: ChatHistorySidebarProps) {
-  const { sessions, selectSession, deleteSession, currentSession } = useChatHistory();
+  const { sessions, selectSession, deleteSession, currentSession, deleteAllSessions } = useChatHistory();
   const [hoveredSession, setHoveredSession] = useState<string | null>(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
 
   const handleSelectSession = (id: string) => {
     selectSession(id);
     onClose();
   };
 
-  const handleDeleteSession = (e: React.MouseEvent, id: string) => {
+  const handleDeleteSession = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (confirm("Delete this conversation?")) {
-      deleteSession(id);
+      await deleteSession(id);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (confirm("Delete ALL conversations? This cannot be undone.")) {
+      await deleteAllSessions();
+      setShowDeleteAllConfirm(false);
     }
   };
 
@@ -145,8 +153,48 @@ export default function ChatHistorySidebar({
               </div>
             )}
           </div>
+
+          {/* Delete All Button */}
+          {sessions.length > 0 && (
+            <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setShowDeleteAllConfirm(true)}
+                className="w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              >
+                Delete All Conversations
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Delete All Confirmation Modal */}
+      {showDeleteAllConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Delete All Conversations?
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              This will permanently delete all your chat conversations. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowDeleteAllConfirm(false)}
+                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAll}
+                className="px-4 py-2 text-sm bg-red-500 text-white hover:bg-red-600 rounded-md"
+              >
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

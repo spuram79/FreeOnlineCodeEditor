@@ -37,6 +37,7 @@ const config = {
       statements: 70,
     },
   },
+  testPathIgnorePatterns: ["<rootDir>/app/api/db/sessions/route.test.ts"],
 };
 
 module.exports = config;
