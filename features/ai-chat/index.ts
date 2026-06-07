@@ -9,6 +9,8 @@
 export { default as SettingsModal } from "./components/SettingsModal";
 export { default as MessageBubble } from "./components/MessageBubble";
 export { default as ChatHistorySidebar } from "./components/ChatHistorySidebar";
+export { default as MarkdownRenderer } from "./components/MarkdownRenderer";
+export { default as CodeBlock } from "./components/CodeBlock";
 
 // Types
 export type { Message, Model, ChatSession, Source, FocusMode } from "./types";
