@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+npm-debug.log
+pnpm-debug.log*
+
+# Build outputs
+.next
+.out
+.vercel
+
+# Development files
+.git
+.gitignore
+.env*.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+.coverage
+.nyc_output
+.dist
+
+# Misc
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+__tests__
+*.test.*
+*.spec.*
+
+# Docker context
+.docker
