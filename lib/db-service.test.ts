@@ -2,6 +2,8 @@
  * Database Service Tests - Tests for SQLite persistence
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import Database from 'better-sqlite3';
 import * as dbService from './db-service';
 import { SCHEMA } from './db-schema';

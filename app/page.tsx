@@ -13,7 +13,7 @@ export default function LandingPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Santosh Puram's AI Tools</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Santosh Puram&apos;s AI Tools</h1>
         </div>
         <p className="text-center text-gray-600 dark:text-gray-400 mt-2">Choose your tool below</p>
       </header>

@@ -2,7 +2,7 @@
  * Tests for AI Chat Feature - Settings Modal Component
  */
 
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SettingsModal from "./SettingsModal";
 
@@ -73,7 +73,6 @@ describe("SettingsModal", () => {
 
   describe("Negative scenarios and edge cases", () => {
     it("should handle very long API key", async () => {
-      const user = userEvent.setup();
       const longKey = "sk-or-" + "x".repeat(100);
       render(<SettingsModal {...mockProps} isOpen={true} apiKey={longKey} />);
 
@@ -99,7 +98,6 @@ describe("SettingsModal", () => {
     });
 
     it("should be accessible via keyboard navigation", async () => {
-      const user = userEvent.setup();
       render(<SettingsModal {...mockProps} isOpen={true} />);
 
       const input = screen.getByPlaceholderText("sk-or-...");

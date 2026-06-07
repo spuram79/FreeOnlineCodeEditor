@@ -7,6 +7,19 @@ import Database from 'better-sqlite3';
 import { join } from 'path';
 import { SCHEMA } from '@/lib/db-schema';
 
+interface Message {
+  role: string;
+  content: string;
+}
+
+interface Session {
+  id: string;
+  title: string;
+  model: string;
+  focusMode?: string | null;
+  messages?: Message[];
+}
+
 // Shared database instance for testing
 let sharedDb: Database.Database | null = null;
 
@@ -28,7 +41,7 @@ function getDb() {
 }
 
 // GET /api/db/sessions - List all chat sessions
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const db = getDb();
     
@@ -39,8 +52,8 @@ export async function GET(request: NextRequest) {
     `).all();
 
     return NextResponse.json({ sessions });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -48,7 +61,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, session } = body;
+    const { action, session } = body as { action: string; session: Session };
 
     const db = getDb();
 
@@ -95,8 +108,8 @@ export async function POST(request: NextRequest) {
             VALUES (?, ?, ?, ?)
           `);
           
-          const insertMany = db.transaction((messages: any[]) => {
-            for (const msg of messages) {
+          const insertMany = db.transaction((msgs: Message[]) => {
+            for (const msg of msgs) {
               insertMsg.run(session.id, msg.role, msg.content, now);
             }
           });
@@ -109,8 +122,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -138,7 +151,7 @@ export async function DELETE(request: NextRequest) {
     db.prepare('DELETE FROM chat_sessions WHERE id = ?').run(sessionId);
 
     return NextResponse.json({ success: true, deleted: sessionId });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }

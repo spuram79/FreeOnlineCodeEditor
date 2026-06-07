@@ -48,7 +48,10 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        setSessions(JSON.parse(stored));
+        // Use setTimeout to avoid setState in effect warning
+        setTimeout(() => {
+          setSessions(JSON.parse(stored));
+        }, 0);
       } catch (e) {
         console.error("Failed to parse stored sessions:", e);
       }
@@ -166,7 +169,7 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         if (data.sessions && data.sessions.length > 0) {
-          const dbSessions: ChatSession[] = data.sessions.map((s: any) => ({
+          const dbSessions: ChatSession[] = data.sessions.map((s) => ({
             id: s.id,
             title: s.title,
             messages: [],

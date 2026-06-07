@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface CodeBlockProps {
   code: string;
@@ -16,12 +16,6 @@ interface CodeBlockProps {
 
 export default function CodeBlock({ code, language = "text" }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
-  const [displayCode, setDisplayCode] = useState(code);
-
-  useEffect(() => {
-    // Simple syntax highlighting with basic color classes
-    setDisplayCode(code);
-  }, [code]);
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(code);

@@ -2,6 +2,8 @@
  * Database API Tests - Tests for SQLite persistence
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { GET, POST, DELETE, setTestDatabase } from './route';
 import { NextRequest } from 'next/server';
 import Database from 'better-sqlite3';

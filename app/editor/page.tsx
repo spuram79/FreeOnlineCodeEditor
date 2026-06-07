@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   CodeEditor,
   LanguageDropdown,
@@ -16,8 +17,13 @@ import {
 
 declare global {
   interface Window {
-    loadPyodide: any;
-    pyodide: any;
+    loadPyodide: () => Promise<unknown>;
+    pyodide: {
+      runPythonAsync: (code: string) => Promise<unknown>;
+      globals: {
+        get: (name: string) => unknown;
+      };
+    };
   }
 }
 
@@ -143,22 +149,22 @@ finally:
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Santosh Puram's Code Editor</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Santosh Puram&apos;s Code Editor</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">Edit HTML, CSS, JS, Python, C#, and Java</p>
             </div>
           </div>
           
           {/* Language Selector */}
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/"
               className="px-4 py-2 text-sm font-medium bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
               </svg>
-              Home
-            </a>
+              <span>Home</span>
+            </Link>
             <LanguageDropdown
               selectedLanguage={selectedLanguage}
               onLanguageChange={setSelectedLanguage}

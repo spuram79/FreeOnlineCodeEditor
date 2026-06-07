@@ -6,6 +6,8 @@
  * in isolation.
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // Mock Next.js server module
 jest.mock("next/server", () => {
   const mockJson = (data: any, init?: ResponseInit) => ({

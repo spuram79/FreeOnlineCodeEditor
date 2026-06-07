@@ -153,7 +153,7 @@ export function updateChatSession(
 
   // Update session metadata
   const fields: string[] = [];
-  const values: any[] = [];
+  const values: unknown[] = [];
 
   if (updates.title !== undefined) {
     fields.push('title = ?');

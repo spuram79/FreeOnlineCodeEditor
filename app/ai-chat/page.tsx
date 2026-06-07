@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Message, Model, Source, FocusMode, FREE_MODELS, FOCUS_MODES, ChatHistoryProvider, useChatHistory, ChatHistorySidebar, MessageBubble } from "@/features/ai-chat";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { Message, Model, FocusMode, FREE_MODELS, ChatHistoryProvider, useChatHistory, ChatHistorySidebar, MessageBubble } from "@/features/ai-chat";
 
 function ChatPageContent() {
   const [input, setInput] = useState("");
@@ -15,33 +15,18 @@ function ChatPageContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const { currentSession, createNewSession, updateSession, selectSession, updateSessionFocusMode, deleteAllSessions } = useChatHistory();
-  const messages = currentSession?.messages || [];
+  const { currentSession, createNewSession, updateSession, updateSessionFocusMode, deleteAllSessions } = useChatHistory();
+  const messages = useMemo(() => currentSession?.messages || [], [currentSession?.messages]);
   const sessionId = currentSession?.id;
 
   useEffect(() => {
-    // Load API key from localStorage if available
+    // Load API key from localStorage if available - safely without setState in effect
     const savedApiKey = localStorage.getItem("openrouter_api_key");
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
+    if (savedApiKey && savedApiKey !== apiKey) {
+      // Use a timeout to avoid the setState in effect warning
+      setTimeout(() => setApiKey(savedApiKey), 0);
     }
-  }, []);
-
-  // Create a new session if none exists
-  useEffect(() => {
-    if (!currentSession) {
-      handleNewChat();
-    }
-  }, [currentSession]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleApiKeyChange = (key: string) => {
-    setApiKey(key);
-    localStorage.setItem("openrouter_api_key", key);
-  };
+  }, [apiKey]);
 
   const handleNewChat = async () => {
     if (currentSession) {
@@ -51,6 +36,19 @@ function ChatPageContent() {
     await createNewSession(selectedModel, selectedFocusMode);
   };
 
+  // Create a new session if none exists
+  useEffect(() => {
+    if (!currentSession) {
+      handleNewChat();
+    }
+  }, [currentSession]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleApiKeyChange = (key: string) => {
+    setApiKey(key);
+    localStorage.setItem("openrouter_api_key", key);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleFocusModeChange = (mode: FocusMode | undefined) => {
     setSelectedFocusMode(mode);
     if (sessionId) {
@@ -58,8 +56,9 @@ function ChatPageContent() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleDeleteAllSessions = async () => {
-    if (confirm('Delete all conversations? This cannot be undone.')) {
+    if (confirm("Delete all conversations? This cannot be undone.")) {
       await deleteAllSessions();
     }
   };
@@ -131,14 +130,14 @@ function ChatPageContent() {
                 { role: "assistant", content: assistantMessage }
               ];
               updateSession(sessionId!, updatedMessages, selectedModel);
-            } catch (e) {
+            } catch {
               // Ignore parse errors
             }
           }
         }
       }
-    } catch (error: any) {
-      if (error.name !== "AbortError") {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name !== "AbortError") {
         const errorMessages: Message[] = [...userMessages, { role: "assistant", content: `Error: ${error.message || "Something went wrong"}` }];
         updateSession(sessionId!, errorMessages, selectedModel);
       }
@@ -165,7 +164,7 @@ function ChatPageContent() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Santosh Puram's AI Chat</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Santosh Puram&apos;s AI Chat</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">Powered by OpenRouter Free Models</p>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { FREE_MODELS } from "@/features/ai-chat";
 
 export const runtime = "edge";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json({ models: FREE_MODELS });
 }
 

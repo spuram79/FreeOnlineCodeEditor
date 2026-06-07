@@ -68,7 +68,7 @@ const TOOLS: McpTool[] = [
   }
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Return MCP server info
   return NextResponse.json({
     jsonrpc: "2.0",
@@ -109,14 +109,14 @@ export async function POST(request: NextRequest) {
           }
         }, { status: 400 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({
       jsonrpc: "2.0",
       id: null,
       error: {
         code: -32700,
         message: "Parse error",
-        data: error.message
+        data: error instanceof Error ? error.message : String(error)
       }
     }, { status: 400 });
   }
@@ -132,7 +132,12 @@ function handleToolsList(id: string | number) {
   });
 }
 
-async function handleToolCall(id: string | number, params: any) {
+interface ToolCallParams {
+  name?: string;
+  arguments?: Record<string, unknown>;
+}
+
+async function handleToolCall(id: string | number, params: ToolCallParams) {
   const { name, arguments: args } = params || {};
   
   switch (name) {
@@ -264,7 +269,7 @@ async function handleToolCall(id: string | number, params: any) {
   }
 }
 
-function handleInitialize(id: string | number, params: any) {
+function handleInitialize(id: string | number) {
   return NextResponse.json({
     jsonrpc: "2.0",
     id,
