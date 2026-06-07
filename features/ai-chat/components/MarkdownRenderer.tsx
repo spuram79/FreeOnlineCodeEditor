@@ -46,7 +46,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       // Apply syntax highlighting to all code blocks
       const codeBlocks = containerRef.current.querySelectorAll("pre code");
       codeBlocks.forEach((block) => {
-        Prism.highlightElement(block);
+        Prism.highlightElement(block as HTMLElement);
       });
     }
   }, [content]);
@@ -59,7 +59,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div
       ref={containerRef}
-      className="markdown-content prose prose-sm max-w-none dark:prose-invert prose-p:mb-3 prose-headings:mt-4 prose-headings:mb-2 first:prose-headings:mt-0"
+      className="markdown-content"
       dangerouslySetInnerHTML={renderMarkdown(content)}
     />
   );

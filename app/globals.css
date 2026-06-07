@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@import "prismjs/themes/prism-tomorrow.css";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +25,74 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Markdown Content Styling - Claude/Perplexity-like */
+.markdown-content {
+  @apply text-gray-900 dark:text-gray-100;
+}
+
+.markdown-content p {
+  @apply mb-4 text-base leading-relaxed;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  @apply font-bold text-gray-900 dark:text-white mt-6 mb-3;
+}
+
+.markdown-content h1 {
+  @apply text-2xl;
+}
+
+.markdown-content h2 {
+  @apply text-xl;
+}
+
+.markdown-content h3 {
+  @apply text-lg;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  @apply mb-4 pl-6;
+}
+
+.markdown-content li {
+  @apply mb-2;
+}
+
+.markdown-content a {
+  @apply text-blue-600 dark:text-blue-400 hover:underline;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4;
+}
+
+.markdown-content pre {
+  @apply bg-gray-900 dark:bg-gray-950 rounded-lg p-4 overflow-x-auto my-4;
+}
+
+.markdown-content code {
+  @apply bg-gray-100 dark:bg-gray-800 rounded px-1.5 py-0.5 text-sm font-mono text-gray-800 dark:text-gray-200;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0;
+}
+
+.markdown-content table {
+  @apply w-full border-collapse my-4;
+}
+
+.markdown-content th,
+.markdown-content td {
+  @apply border border-gray-300 dark:border-gray-600 px-3 py-2 text-left;
+}
+
+.markdown-content th {
+  @apply bg-gray-100 dark:bg-gray-800 font-semibold;
 }
