@@ -11,8 +11,8 @@ export { default as MessageBubble } from "./components/MessageBubble";
 export { default as ChatHistorySidebar } from "./components/ChatHistorySidebar";
 
 // Types
-export type { Message, Model, ChatSession } from "./types";
+export type { Message, Model, ChatSession, Source, FocusMode } from "./types";
 
 // Lib
-export { FREE_MODELS, DEFAULT_MODEL } from "./lib/models";
+export { FREE_MODELS, DEFAULT_MODEL, FOCUS_MODES } from "./lib/models";
 export { ChatHistoryProvider, useChatHistory } from "./lib/chat-history-context";

@@ -13,11 +13,12 @@ import { Message, ChatSession } from "../types";
 interface ChatHistoryContextType {
   sessions: ChatSession[];
   currentSession: ChatSession | null;
-  createNewSession: (model: string) => ChatSession;
+  createNewSession: (model: string, focusMode?: string) => ChatSession;
   selectSession: (id: string) => void;
   deleteSession: (id: string) => void;
   updateSession: (id: string, messages: Message[], model: string) => void;
   updateSessionTitle: (id: string, title: string) => void;
+  updateSessionFocusMode: (id: string, focusMode: string | undefined) => void;
 }
 
 const ChatHistoryContext = createContext<ChatHistoryContextType | undefined>(undefined);
@@ -54,12 +55,17 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
   }, [sessions]);
 
-  const createNewSession = (model: string): ChatSession => {
+  const createNewSession = (model: string, focusMode?: string): ChatSession => {
+    const focusWelcome = focusMode
+      ? "Hello! I'm a free AI assistant powered by OpenRouter. I'm in " + focusMode.charAt(0).toUpperCase() + focusMode.slice(1) + " mode - how can I help you today? 🚀"
+      : "Hello! I'm a free AI assistant powered by OpenRouter. How can I help you today? 🚀";
+    
     const newSession: ChatSession = {
       id: crypto.randomUUID(),
       title: "New Conversation",
-      messages: [{ role: "assistant", content: "Hello! I'm a free AI assistant powered by OpenRouter. How can I help you today? 🚀" }],
+      messages: [{ role: "assistant", content: focusWelcome }],
       model,
+      focusMode,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -126,6 +132,20 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateSessionFocusMode = (id: string, focusMode: string | undefined) => {
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === id ? { ...s, focusMode, updatedAt: Date.now() } : s
+      )
+    );
+
+    if (currentSession?.id === id) {
+      setCurrentSession((prev) =>
+        prev ? { ...prev, focusMode, updatedAt: Date.now() } : null
+      );
+    }
+  };
+
   return (
     <ChatHistoryContext.Provider
       value={{
@@ -136,6 +156,7 @@ export function ChatHistoryProvider({ children }: { children: ReactNode }) {
         deleteSession,
         updateSession,
         updateSessionTitle,
+        updateSessionFocusMode,
       }}
     >
       {children}
