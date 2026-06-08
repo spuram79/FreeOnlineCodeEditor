@@ -14,6 +14,9 @@ This document provides detailed documentation for each feature in the FreeOnline
 7. [VS Code Extension](#vs-code-extension)
 8. [SQLite Database](#sqlite-database)
 
+**Related Documentation:**
+- [VS Code Extension Setup Guide](../Setup/docs/VSCExtensionSetupGuide.md) - Installation and configuration for all environments
+
 ---
 
 ## AI Chat Feature
@@ -295,15 +298,14 @@ A VS Code extension that integrates the Free AI Chat functionality directly into
 
 ### Installation
 
-```bash
-# From VS Code Marketplace (when published)
-code --install-extension spuram79.free-ai-chat
+**See [VS Code Extension Setup Guide](../Setup/docs/VSCExtensionSetupGuide.md) for detailed installation instructions for Local, SIT, UAT, and Production environments.**
 
-# From source
+```bash
+# Quick install from source
 cd vscode-extension
-npm install -g @vscode/vsce
-vsce package
-code --install-extension free-ai-chat-1.0.0.vsix
+npm install
+npm run compile
+code --extensionDevelopmentPath=.
 ```
 
 ### Configuration

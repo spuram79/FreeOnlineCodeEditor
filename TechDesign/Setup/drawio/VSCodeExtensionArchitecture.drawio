@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-08T09:50:00.000Z" agent="Mozilla/5.0" etag="0" theme="default" version="24.7.2">
+  <diagram name="VS Code Extension Architecture" id="1">
+    <mxGraphModel dx="1428" dy="1062" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" foldPan="1">
+      <root id="0" />
+      <mxCell id="0" />
+      <mxCell id="1" parent="0">
+        <mxGeometry width="827" height="1169" as="geometry" />
+      </mxCell>
+      <!-- Title -->
+      <mxCell id="title" value="Free AI Chat - VS Code Extension Architecture" style="text;html=1;strokeColor=none;align=center;fontSize=20;fontStyle=bold;" vertex="1" parent="1">
+        <mxGeometry x="100" y="20" width="600" height="40" as="geometry" />
+      </mxCell>
+      
+      <!-- VS Code Editor Box -->
+      <mxCell id="vscode-editor" value="VS Code Editor" style="rounded=1;strokeWidth=2;fillColor=#E1F5FE;" vertex="1" parent="1">
+        <mxGeometry x="50" y="80" width="300" height="120" as="geometry" />
+      </mxCell>
+      
+      <!-- Extension Box -->
+      <mxCell id="extension" value="Extension (extension.ts)" style="rounded=1;strokeWidth=2;fillColor=#F3E5F5;" vertex="1" parent="1">
+        <mxGeometry x="400" y="80" width="350" height="400" as="geometry" />
+      </mxCell>
+      
+      <!-- API Layer Box -->
+      <mxCell id="api-layer" value="API Layer (OpenRouterClient)" style="rounded=1;strokeWidth=2;fillColor=#E8F5E9;" vertex="1" parent="1">
+        <mxGeometry x="50" y="250" width="300" height="100" as="geometry" />
+      </mxCell>
+      
+      <!-- MCP Endpoint Box -->
+      <mxCell id="mcp-endpoint" value="MCP API Endpoint&#10;/api/mcp" style="rounded=1;strokeWidth=2;fillColor=#FFF3E0;" vertex="1" parent="1">
+        <mxGeometry x="50" y="420" width="300" height="80" as="geometry" />
+      </mxCell>
+      
+      <!-- Chat Provider Component -->
+      <mxCell id="chat-provider" value="ChatProvider&#10;- openChatPanel()&#10;- askAboutSelection()&#10;- explainCode()&#10;- generateCode()&#10;- refactorCode()" style="rounded=1;strokeWidth=2;fillColor=#F5F5F5;" vertex="1" parent="1">
+        <mxGeometry x="420" y="150" width="310" height="150" as="geometry" />
+      </mxCell>
+      
+      <!-- Webview Content Component -->
+      <mxCell id="webview" value="Webview Content&#10;- HTML Template&#10;- CSS Styling&#10;- JS Frontend" style="rounded=1;strokeWidth=2;fillColor=#F5F5F5;" vertex="1" parent="1">
+        <mxGeometry x="420" y="320" width="310" height="120" as="geometry" />
+      </mxCell>
+      
+      <!-- Connections -->
+      <!-- Editor to Extension -->
+      <mxCell id="conn1" value="" edge="1" style="endArrow=classic;startArrow=classic;strokeWidth=2;" parent="1">
+        <mxCell id="edge1" source="vscode-editor" target="extension" />
+      </mxCell>
+      
+      <!-- Chat Provider to API Client -->
+      <mxCell id="conn2" value="" edge="1" style="endArrow=classic;startArrow=classic;strokeWidth=2;" parent="1">
+        <mxCell id="edge2" source="chat-provider" target="api-layer" />
+      </mxCell>
+      
+      <!-- API Client to MCP Endpoint -->
+      <mxCell id="conn3" value="" edge="1" style="endArrow=classic;startArrow=classic;strokeWidth=2;" parent="1">
+        <mxCell id="edge3" source="api-layer" target="mcp-endpoint" />
+      </mxCell>
+      
+      <!-- Webview to Chat Provider -->
+      <mxCell id="conn4" value="" edge="1" style="endArrow=classic;startArrow=classic;strokeWidth=2;" parent="1">
+        <mxCell id="edge4" source="webview" target="chat-provider" />
+      </mxCell>
+      
+      <!-- API Layer to MCP Endpoint -->
+      <mxCell id="conn5" value="" edge="1" style="endArrow=classic;startArrow=classic;strokeWidth=2;" parent="1">
+        <mxCell id="edge5" source="api-layer" target="mcp-endpoint" />
+      </mxCell>
+      
+      <!-- Command Flow -->
+      <mxCell id="cmd-flow" value="Commands: openChat, askSelection, explainCode, generateCode, refactorCode" style="text;html=1;strokeColor=none;fontSize=12;align=left;" vertex="1" parent="1">
+        <mxGeometry x="420" y="460" width="310" height="50" as="geometry" />
+      </mxCell>
+      
+      <!-- Configuration -->
+      <mxCell id="config" value="Configuration:&#10;- apiKey&#10;- defaultModel&#10;- endpoint&#10;- temperature&#10;- maxTokens" style="text;html=1;strokeColor=none;fontSize=12;align=left;" vertex="1" parent="1">
+        <mxGeometry x="420" y="520" width="310" height="60" as="geometry" />
+      </mxCell>
+      
+      <!-- Activity Bar -->
+      <mxCell id="activity-bar" value="Activity Bar&#10;free-ai-chat.activities" style="rounded=1;strokeWidth=2;fillColor=#E3F2FD;" vertex="1" parent="1">
+        <mxGeometry x="50" y="520" width="300" height="60" as="geometry" />
+      </mxCell>
+      
+      <!-- Legend -->
+      <mxCell id="legend" value="Legend:&#10;Blue = User Interface&#10;Purple = Extension Logic&#10;Green = API Layer&#10;Orange = External Service" style="text;html=1;strokeColor=none;fontSize=12;align=left;" vertex="1" parent="1">
+        <mxGeometry x="50" y="600" width="300" height="80" as="geometry" />
+      </mxCell>
+    </mxGraphModel>
+    <resources />
+  </diagram>
+</mxfile>

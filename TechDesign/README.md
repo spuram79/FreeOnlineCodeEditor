@@ -9,6 +9,7 @@ Welcome to the comprehensive technical documentation for **FreeOnlineCodeEditor*
 | Section | Description | Location |
 |---------|-------------|----------|
 | **Setup Guide** | Installation and deployment instructions for all environments | `Setup/docs/SetupGuide.md` |
+| **VS Code Extension Setup** | Installation and configuration for VS Code extension | `Setup/docs/VSCExtensionSetupGuide.md` |
 | **API Documentation** | REST API and MCP endpoint references | `Setup/docs/APIDocumentation.md` |
 | **Design Documentation** | Architecture, components, and UI design | `Design/docs/DesignDocument.md` |
 | **Testing Documentation** | Test strategies and test cases | `Testing/docs/TestingGuide.md` |
@@ -20,6 +21,7 @@ Welcome to the comprehensive technical documentation for **FreeOnlineCodeEditor*
 
 ### 🚀 Getting Started
 - [Local Development Setup](Setup/docs/SetupGuide.md#local-development-setup)
+- [VS Code Extension Setup](Setup/docs/VSCExtensionSetupGuide.md)
 - [Environment Variables](Setup/docs/SetupGuide.md#environment-variables)
 - [Running Tests](Testing/docs/TestingGuide.md#running-tests)
 
@@ -27,6 +29,7 @@ Welcome to the comprehensive technical documentation for **FreeOnlineCodeEditor*
 - [System Architecture](Design/docs/DesignDocument.md#system-architecture)
 - [Component Hierarchy](Design/docs/DesignDocument.md#component-hierarchy)
 - [UI/UX Design Guidelines](Design/docs/DesignDocument.md#uiux-design)
+- [VS Code Extension Architecture](Setup/drawio/VSCodeExtensionArchitecture.drawio)
 
 ### 🔧 API Reference
 - [Chat API](/api/chat)
