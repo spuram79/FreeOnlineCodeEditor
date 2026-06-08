@@ -1,54 +1,11 @@
 import * as vscode from 'vscode';
 
 export function getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri): string {
-  const scriptUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, 'out', 'webview.js')
-  );
-  
   const styleUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, 'media', 'style.css')
   );
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="${styleUri}" rel="stylesheet">
-  <title>Free AI Chat</title>
-</head>
-<body>
-  <div id="app">
-    <div class="header">
-      <h2>Free AI Chat</h2>
-      <div class="model-selector">
-        <select id="modelSelect">
-          <option value="openrouter/free">Loading models...</option>
-        </select>
-      </div>
-    </div>
-    
-    <div id="messages" class="messages-container"></div>
-    
-    <div class="input-container">
-      <textarea id="promptInput" placeholder="Type your message..." rows="3"></textarea>
-      <button id="sendButton" class="send-btn">Send</button>
-    </div>
-    
-    <div id="loadingIndicator" class="loading-indicator hidden">
-      <span class="spinner"></span> AI is thinking...
-    </div>
-  </div>
-  
-  <script src="${scriptUri}"></script>
-</body>
-</html>`;
-}
-
-// This file needs to be built into webview.js
-// For simplicity, we'll inline the webview script
-export function getWebviewScript(): string {
-  return `
+  const script = `
   const vscode = acquireVsCodeApi();
   
   // State
@@ -105,7 +62,7 @@ export function getWebviewScript(): string {
     if (models.length === 0) return;
     
     modelSelect.innerHTML = '';
-    models.forEach(model => {
+    models.forEach(function(model) {
       const option = document.createElement('option');
       option.value = model.id;
       option.textContent = model.name || model.id;
@@ -115,7 +72,7 @@ export function getWebviewScript(): string {
   }
   
   // Model change handler
-  modelSelect.addEventListener('change', () => {
+  modelSelect.addEventListener('change', function() {
     currentModel = modelSelect.value;
   });
   
@@ -156,15 +113,15 @@ export function getWebviewScript(): string {
       
       const copyBtn = document.createElement('button');
       copyBtn.textContent = 'Copy';
-      copyBtn.onclick = () => {
+      copyBtn.onclick = function() {
         navigator.clipboard.writeText(content);
         copyBtn.textContent = 'Copied!';
-        setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+        setTimeout(function() { copyBtn.textContent = 'Copy'; }, 2000);
       };
       
       const insertBtn = document.createElement('button');
       insertBtn.textContent = 'Insert';
-      insertBtn.onclick = () => {
+      insertBtn.onclick = function() {
         vscode.postMessage({ command: 'insert', text: content });
       };
       
@@ -195,11 +152,46 @@ export function getWebviewScript(): string {
   
   // Event listeners
   sendButton.addEventListener('click', sendMessage);
-  promptInput.addEventListener('keydown', e => {
+  promptInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   });
   `;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="${styleUri}" rel="stylesheet">
+  <title>Free AI Chat</title>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <h2>Free AI Chat</h2>
+      <div class="model-selector">
+        <select id="modelSelect">
+          <option value="openrouter/free">Loading models...</option>
+        </select>
+      </div>
+    </div>
+    
+    <div id="messages" class="messages-container"></div>
+    
+    <div class="input-container">
+      <textarea id="promptInput" placeholder="Type your message..." rows="3"></textarea>
+      <button id="sendButton" class="send-btn">Send</button>
+    </div>
+    
+    <div id="loadingIndicator" class="loading-indicator hidden">
+      <span class="spinner"></span> AI is thinking...
+    </div>
+  </div>
+  
+  <script>${script}</script>
+</body>
+</html>`;
 }
