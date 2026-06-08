@@ -113,7 +113,7 @@ export class ChatProvider {
     }
   }
 
-  private insertResponse(text: string) {
+  async insertResponse(text: string) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
       editor.edit(editBuilder => {
