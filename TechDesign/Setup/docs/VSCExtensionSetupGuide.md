@@ -63,14 +63,25 @@ npm install
 npm run compile
 ```
 
-### Step 5: Run in Development Mode
+### Step 5: Package Extension (Optional)
+
+The extension is already compiled. To create a VSIX file for manual installation:
 
 ```bash
-# Option 1: Using VS Code's extension development host
-code --extensionDevelopmentPath=.
+# If you want to package your own VSIX
+npx @vscode/vsce package --allow-star-activation --allow-missing-repository
 
-# Option 2: Using the watch mode for development
-npm run watch
+# This creates: free-ai-chat-1.0.0.vsix
+```
+
+### Step 6: Install Extension Locally
+
+```bash
+# Method 1: Install from VSIX file
+code --install-extension free-ai-chat-1.0.0.vsix
+
+# Method 2: Run in development mode (for testing)
+code --extensionDevelopmentPath=.
 ```
 
 ### Step 6: Configure API Key
