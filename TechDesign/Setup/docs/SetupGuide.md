@@ -14,7 +14,8 @@ This document provides step-by-step instructions for setting up the FreeOnlineCo
 4. [System Integration Testing (SIT) Setup](#sit-setup)
 5. [User Acceptance Testing (UAT) Setup](#uat-setup)
 6. [Production Deployment](#production-deployment)
-7. [Troubleshooting](#troubleshooting)
+7. [VS Code Extension Setup](#vscode-extension-setup)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -335,6 +336,48 @@ curl -f https://your-domain.com/api/mcp
 # Expected response:
 # {"jsonrpc":"2.0","name":"ai-chat-mcp",...}
 ```
+
+---
+
+## VS Code Extension Setup
+
+For developers who want to use the AI Chat functionality directly in VS Code, see the **[VS Code Extension Setup Guide](VSCExtensionSetupGuide.md)** for detailed instructions.
+
+### Quick Start
+
+```bash
+# Navigate to extension directory
+cd vscode-extension
+
+# Install dependencies
+npm install
+
+# Compile the extension
+npm run compile
+
+# Run in development mode
+code --extensionDevelopmentPath=.
+```
+
+### Extension Features
+
+| Command | Description |
+|---------|-------------|
+| `free-ai-chat.openChat` | Open chat panel |
+| `free-ai-chat.askSelection` | Ask AI about selected code |
+| `free-ai-chat.explainCode` | Get code explanations |
+| `free-ai-chat.generateCode` | Generate code from description |
+| `free-ai-chat.refactorCode` | Improve existing code |
+
+### Configuration Settings
+
+| Setting | Description |
+|---------|-------------|
+| `free-ai-chat.apiKey` | OpenRouter API Key |
+| `free-ai-chat.defaultModel` | Default AI model |
+| `free-ai-chat.endpoint` | API endpoint URL |
+| `free-ai-chat.temperature` | AI creativity (0-1) |
+| `free-ai-chat.maxTokens` | Max response tokens |
 
 ---
 
