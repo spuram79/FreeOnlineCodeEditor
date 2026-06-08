@@ -4,15 +4,12 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { GET, POST, DELETE, setTestDatabase } from './route';
-import { NextRequest } from 'next/server';
+import { GET, POST, DELETE } from './route';
 import Database from 'better-sqlite3';
-
-// Mock database path for testing
-const TEST_DB_PATH = ':memory:';
+import { setTestDatabase } from '@/lib/db-service';
 
 // Helper to create mock NextRequest
-function createMockRequest(method: string, body?: any, searchParams?: Record<string, string>): NextRequest {
+function createMockRequest(method: string, body?: any, searchParams?: Record<string, string>): Request {
   const url = new URL('http://localhost/api/db/sessions');
   if (searchParams) {
     Object.entries(searchParams).forEach(([key, value]) => {
@@ -29,7 +26,7 @@ function createMockRequest(method: string, body?: any, searchParams?: Record<str
     init.body = JSON.stringify(body);
   }
   
-  return new NextRequest(url, init);
+  return new Request(url, init);
 }
 
 describe('Database API Routes', () => {
@@ -37,7 +34,7 @@ describe('Database API Routes', () => {
   
   beforeEach(() => {
     // Create a fresh in-memory database for each test
-    db = new Database(TEST_DB_PATH);
+    db = new Database(':memory:');
     db.exec(`
       CREATE TABLE IF NOT EXISTS chat_sessions (
         id TEXT PRIMARY KEY,
@@ -64,7 +61,6 @@ describe('Database API Routes', () => {
 
   afterEach(() => {
     db.close();
-    setTestDatabase(null as any);
   });
 
   describe('GET /api/db/sessions', () => {

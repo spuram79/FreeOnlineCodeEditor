@@ -3,155 +3,92 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import Database from 'better-sqlite3';
-import { join } from 'path';
-import { SCHEMA } from '@/lib/db-schema';
-
-interface Message {
-  role: string;
-  content: string;
-}
-
-interface Session {
-  id: string;
-  title: string;
-  model: string;
-  focusMode?: string | null;
-  messages?: Message[];
-}
-
-// Shared database instance for testing
-let sharedDb: Database.Database | null = null;
-
-// For testing: set a shared database
-export function setTestDatabase(db: Database.Database): void {
-  sharedDb = db;
-}
-
-// Get database connection
-function getDb() {
-  if (sharedDb) {
-    return sharedDb;
-  }
-  
-  const dbPath = process.env.DATABASE_PATH || join(process.cwd(), 'data/chat-database.db');
-  const db = new Database(dbPath);
-  db.exec(SCHEMA);
-  return db;
-}
+import { 
+  upsertChatSession, 
+  getAllChatSessions, 
+  getChatSession,
+  deleteChatSession,
+  clearAllSessions
+} from '@/lib/db-service';
+import { ChatSession } from '@/features/ai-chat/types';
+import { logger, logRequest, logResponse } from '@/lib/logger';
 
 // GET /api/db/sessions - List all chat sessions
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const context = logRequest(request);
+  const start = Date.now();
+  
   try {
-    const db = getDb();
-    
-    const sessions = db.prepare(`
-      SELECT id, title, model, focus_mode, created_at, updated_at 
-      FROM chat_sessions 
-      ORDER BY updated_at DESC
-    `).all();
-
+    const sessions = await getAllChatSessions();
+    logResponse(context, 200, Date.now() - start);
     return NextResponse.json({ sessions });
   } catch (error: unknown) {
+    logResponse(context, 500, Date.now() - start);
+    logger.error('Failed to get sessions', { 
+      ...context, 
+      error: error instanceof Error ? error.message : "Unknown error" 
+    });
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 
 // POST /api/db/sessions - Create or update a chat session
 export async function POST(request: NextRequest) {
+  const context = logRequest(request);
+  const start = Date.now();
+  
   try {
     const body = await request.json();
-    const { action, session } = body as { action: string; session: Session };
+    const { action, session } = body as { action: string; session: ChatSession };
 
-    const db = getDb();
-
-    if (action === 'create') {
-      const now = Date.now();
-      
-      db.prepare(`
-        INSERT INTO chat_sessions (id, title, model, focus_mode, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).run(
-        session.id,
-        session.title,
-        session.model,
-        session.focusMode || null,
-        now,
-        now
-      );
-
-      return NextResponse.json({ success: true, session });
-
-    } else if (action === 'update') {
-      const now = Date.now();
-      
-      // Update session metadata
-      db.prepare(`
-        UPDATE chat_sessions 
-        SET title = ?, model = ?, focus_mode = ?, updated_at = ?
-        WHERE id = ?
-      `).run(
-        session.title,
-        session.model,
-        session.focusMode || null,
-        now,
-        session.id
-      );
-
-      // Handle messages
-      if (session.messages) {
-        db.prepare('DELETE FROM messages WHERE session_id = ?').run(session.id);
-        
-        if (session.messages.length > 0) {
-          const insertMsg = db.prepare(`
-            INSERT INTO messages (session_id, role, content, created_at)
-            VALUES (?, ?, ?, ?)
-          `);
-          
-          const insertMany = db.transaction((msgs: Message[]) => {
-            for (const msg of msgs) {
-              insertMsg.run(session.id, msg.role, msg.content, now);
-            }
-          });
-          
-          insertMany(session.messages);
-        }
-      }
-
-      return NextResponse.json({ success: true });
+    if (action === 'create' || action === 'update') {
+      const result = await upsertChatSession(session);
+      logResponse(context, 200, Date.now() - start);
+      return NextResponse.json({ success: true, session: result });
     }
 
+    logResponse(context, 400, Date.now() - start);
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: unknown) {
+    logResponse(context, 500, Date.now() - start);
+    logger.error('Failed to upsert session', { 
+      ...context, 
+      error: error instanceof Error ? error.message : "Unknown error" 
+    });
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }
 
 // DELETE /api/db/sessions - Delete a chat session
-// DELETE /api/db/sessions/all - Delete all sessions
 export async function DELETE(request: NextRequest) {
+  const context = logRequest(request);
+  const start = Date.now();
+  
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('id');
     const deleteAll = searchParams.get('all');
 
-    const db = getDb();
-    
     if (deleteAll === 'true' || sessionId === 'all') {
-      // Delete all sessions
-      db.prepare('DELETE FROM chat_sessions').run();
+      await clearAllSessions();
+      logResponse(context, 200, Date.now() - start);
       return NextResponse.json({ success: true, deleted: 'all' });
     }
     
     if (!sessionId) {
+      logResponse(context, 400, Date.now() - start);
       return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
     }
 
-    // Delete cascade will handle messages automatically
-    db.prepare('DELETE FROM chat_sessions WHERE id = ?').run(sessionId);
-
+    await deleteChatSession(sessionId);
+    logResponse(context, 200, Date.now() - start);
     return NextResponse.json({ success: true, deleted: sessionId });
   } catch (error: unknown) {
+    logResponse(context, 500, Date.now() - start);
+    logger.error('Failed to delete session', { 
+      ...context, 
+      error: error instanceof Error ? error.message : "Unknown error" 
+    });
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
 }

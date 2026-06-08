@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FREE_MODELS } from "@/features/ai-chat";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 /**
  * MCP (Model Context Protocol) endpoint for AI Chat features
@@ -86,6 +87,22 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check rate limit (50 requests per minute for MCP)
+    const rateLimit = checkRateLimit(request, { windowMs: 60000, max: 50 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { 
+          jsonrpc: "2.0",
+          id: null,
+          error: {
+            code: -32003,
+            message: "Rate limit exceeded. Please try again later."
+          }
+        },
+        { status: 429 }
+      );
+    }
+
     const body: McpRequest = await request.json();
     
     // Handle different MCP methods

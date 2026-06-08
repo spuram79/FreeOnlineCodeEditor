@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FREE_MODELS } from "@/features/ai-chat";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 export const runtime = "edge";
 
@@ -9,6 +10,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check rate limit (20 requests per minute)
+    const rateLimit = checkRateLimit(request, { windowMs: 60000, max: 20 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later.", rateLimit },
+        { status: 429 }
+      );
+    }
+
     const { messages, model, apiKey: clientApiKey } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {

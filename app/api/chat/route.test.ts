@@ -20,49 +20,57 @@ jest.mock("next/server", () => {
   class MockResponse {
     status: number;
     statusText: string;
-    headers: Record<string, string>;
-    url: string;
+    headers: Map<string, string>;
 
     constructor(body?: any, init?: ResponseInit) {
       this.status = init?.status || 200;
       this.statusText = init?.statusText || "";
-      this.headers = {};
-      this.url = "";
+      this.headers = new Map();
+    }
+
+    json() {
+      return Promise.resolve({});
+    }
+  }
+
+  // Mock NextRequest with minimal implementation
+  class MockNextRequest {
+    url: string;
+    method: string;
+    headers: any;
+    _body: any;
+
+    constructor(url: string, init?: RequestInit) {
+      this.url = url;
+      this.method = init?.method || "GET";
+      const hdrs: Record<string, string> = {};
+      if (init?.headers) {
+        Object.assign(hdrs, init.headers as Record<string, string>);
+      }
+      this.headers = {
+        get: (key: string) => hdrs[key.toLowerCase()] || null,
+        has: (key: string) => key.toLowerCase() in hdrs,
+      };
+      this._body = init?.body;
     }
 
     async json() {
-      return {};
+      if (typeof this._body === "string") {
+        try {
+          return JSON.parse(this._body);
+        } catch {
+          throw new Error("Invalid JSON");
+        }
+      }
+      return this._body;
     }
   }
 
   return {
-    NextRequest: class {
-      url: string;
-      method: string;
-      headers: Headers;
-      _body: any;
-
-      constructor(url: string, init?: RequestInit) {
-        this.url = url;
-        this.method = init?.method || "GET";
-        this.headers = new Headers(init?.headers as Record<string, string>);
-        this._body = init?.body;
-      }
-
-      async json() {
-        if (typeof this._body === "string") {
-          try {
-            return JSON.parse(this._body);
-          } catch {
-            throw new Error("Invalid JSON");
-          }
-        }
-        return this._body;
-      }
-    },
+    NextRequest: MockNextRequest,
     NextResponse: {
       json: mockJson,
-    },
+      },
     Response: MockResponse,
   };
 });
@@ -73,6 +81,11 @@ jest.mock("@/features/ai-chat", () => ({
     { id: "openrouter/free", name: "Free Models Router", description: "Auto-selects the best free model" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B Instruct", description: "70B multilingual instruction model" },
   ],
+}));
+
+// Mock rate limiter for tests
+jest.mock("@/lib/rate-limiter", () => ({
+  checkRateLimit: jest.fn(() => ({ allowed: true, remaining: 10, resetTime: Date.now() + 60000 })),
 }));
 
 describe("Chat API Route", () => {

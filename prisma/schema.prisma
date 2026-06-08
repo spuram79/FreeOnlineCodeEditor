@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChatSession {
+  id         String    @id
+  title      String
+  model      String
+  focusMode  String?   @map("focus_mode")
+  createdAt  Int       @map("created_at")
+  updatedAt  Int       @map("updated_at")
+  messages   Message[]
+
+  @@index([updatedAt])
+}
+
+model Message {
+  id        Int       @id @default(autoincrement())
+  sessionId String    @map("session_id")
+  role      String
+  content   String
+  createdAt Int       @map("created_at")
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}

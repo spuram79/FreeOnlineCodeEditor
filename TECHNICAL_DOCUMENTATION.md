@@ -608,3 +608,95 @@ pnpm run dev --verbose
 
 ## License
 MIT License - Santosh Puram
+
+---
+
+## Production Deployment for 100 Concurrent Users
+
+### Architecture Recommendations
+
+#### For 100 Concurrent Users:
+| Resource | Minimum Requirement |
+|----------|---------------------|
+| CPU | 2-4 cores |
+| Memory | 4-8 GB RAM |
+| Database | PostgreSQL (Supabase/RDS) |
+| CDN | Vercel Edge Network |
+
+### Environment Variables (Production)
+
+```bash
+# Required
+OPENROUTER_API_KEY=sk-or-xxxxx
+DATABASE_URL=postgresql://user:password@host:5432/database
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+# Optional
+APP_API_KEY=your-app-level-api-key
+LOG_LEVEL=warn
+NODE_ENV=production
+```
+
+### Deployment Options
+
+#### Option 1: Vercel + Supabase (Quickest)
+```bash
+# 1. Initialize Prisma
+npx prisma generate
+npx prisma db push
+
+# 2. Deploy to Vercel
+vercel --prod
+
+# 3. Set environment variables in Vercel dashboard
+```
+
+#### Option 2: Docker + PostgreSQL
+```bash
+# 1. Build and run
+docker build -t ai-chat .
+docker run -d -p 3000:3000 \
+  -e OPENROUTER_API_KEY=sk-or-xxxxx \
+  -e DATABASE_URL=postgresql://... \
+  ai-chat
+
+# 2. Setup PostgreSQL (via Docker Compose)
+docker-compose up -d
+```
+
+#### Option 3: AWS ECS/Fargate
+```yaml
+# task-definition.json
+{
+  "cpu": "1024",
+  "memory": "2048",
+  "environment": [
+    {"name": "OPENROUTER_API_KEY", "valueFrom": "..."},
+    {"name": "DATABASE_URL", "valueFrom": "..."}
+  ]
+}
+```
+
+### Scaling Considerations
+
+1. **Database**: SQLite → PostgreSQL for concurrent writes
+2. **Rate Limiting**: In-memory → Redis for distributed systems
+3. **Caching**: Add Redis for model list caching
+4. **Monitoring**: Add health checks and error tracking (Sentry)
+5. **Load Balancing**: Multiple instances behind a load balancer
+
+### Health Check Endpoint
+
+```bash
+curl https://your-domain.com/api/mcp
+```
+
+Expected response:
+```json
+{
+  "jsonrpc": "2.0",
+  "name": "ai-chat-mcp",
+  "version": "1.0.0",
+  ...
+}
+```
