@@ -3,6 +3,56 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Message, Model, FocusMode, FREE_MODELS, ChatHistoryProvider, useChatHistory, ChatHistorySidebar, MessageBubble } from "@/features/ai-chat";
 
+// Utility function to export conversation
+const exportConversation = (messages: { role: string; content: string }[], format: 'text' | 'markdown' | 'json', title: string) => {
+  const timestamp = new Date().toISOString();
+  
+  let content: string;
+  let filename: string;
+  let mimeType: string;
+  
+  switch (format) {
+    case 'text':
+      content = messages.map(msg => 
+        `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}`
+      ).join('\n\n');
+      filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp.slice(0, 10)}.txt`;
+      mimeType = 'text/plain';
+      break;
+    case 'markdown':
+      content = messages.map(msg => 
+        `## ${msg.role === 'user' ? 'You' : 'AI'}\n\n${msg.content}`
+      ).join('\n\n---\n\n');
+      filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp.slice(0, 10)}.md`;
+      mimeType = 'text/markdown';
+      break;
+    case 'json':
+      content = JSON.stringify({
+        title: title,
+        createdAt: timestamp,
+        messages: messages
+      }, null, 2);
+      filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp.slice(0, 10)}.json`;
+      mimeType = 'application/json';
+      break;
+  }
+  
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+const copyConversation = (messages: { role: string; content: string }[]) => {
+  const text = messages.map(msg => 
+    `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}`
+  ).join('\n\n');
+  navigator.clipboard.writeText(text);
+};
+
 function ChatPageContent() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -170,6 +220,59 @@ function ChatPageContent() {
           </div>
 
           <div className="flex items-center gap-3">
+            {currentSession && messages.length > 0 && (
+              <>
+                <button
+                  onClick={() => copyConversation(messages)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  title="Copy conversation"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <rect x="3" y="3" width="13" height="13" rx="2" ry="2" />
+                  </svg>
+                  <span>Copy</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const exportModal = document.createElement('div');
+                    exportModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+                    exportModal.innerHTML = `
+                      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Export Conversation</h3>
+                        <div class="space-y-2">
+                          <button data-format="text" class="w-full px-4 py-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Export as Text (.txt)</button>
+                          <button data-format="markdown" class="w-full px-4 py-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Export as Markdown (.md)</button>
+                          <button data-format="json" class="w-full px-4 py-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Export as JSON (.json)</button>
+                        </div>
+                        <button class="mt-4 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Cancel</button>
+                      </div>
+                    `;
+                    document.body.appendChild(exportModal);
+                    
+                    exportModal.querySelector('button:last-of-type')?.addEventListener('click', () => {
+                      document.body.removeChild(exportModal);
+                    });
+                    
+                    exportModal.querySelectorAll('button[data-format]').forEach(btn => {
+                      btn.addEventListener('click', () => {
+                        const format = (btn as HTMLButtonElement).dataset.format as 'text' | 'markdown' | 'json';
+                        exportConversation(messages, format, currentSession?.title || 'conversation');
+                        document.body.removeChild(exportModal);
+                      });
+                    });
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  title="Export conversation"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-1.64-9.642 4.002 4.002 0 00-.64 6.642" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v8m0 0l3-3m-3 3l-3-3" />
+                  </svg>
+                  <span>Export</span>
+                </button>
+              </>
+            )}
             <button
               type="button"
               onClick={() => setShowHistory(!showHistory)}

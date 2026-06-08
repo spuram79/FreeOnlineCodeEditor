@@ -9,6 +9,7 @@
 
 import { useChatHistory } from "../lib/chat-history-context";
 import { useState } from "react";
+import { Message } from "../types";
 
 interface ChatHistorySidebarProps {
   isOpen: boolean;
@@ -60,6 +61,80 @@ export default function ChatHistorySidebar({
     }
   };
 
+  const exportConversation = (session: { id: string; title: string; messages: Message[]; updatedAt: number }, format: 'text' | 'markdown' | 'json') => {
+    const timestamp = new Date(session.updatedAt).toISOString();
+    
+    let content: string;
+    let filename: string;
+    let mimeType: string;
+    
+    const title = session.title || "conversation";
+    
+    switch (format) {
+      case 'text':
+        content = session.messages.map(msg => 
+          `${msg.role === 'user' ? 'You' : 'AI'}: ${msg.content}`
+        ).join('\n\n');
+        filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp.slice(0, 10)}.txt`;
+        mimeType = 'text/plain';
+        break;
+      case 'markdown':
+        content = session.messages.map(msg => 
+          `## ${msg.role === 'user' ? 'You' : 'AI'}\n\n${msg.content}`
+        ).join('\n\n---\n\n');
+        filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp.slice(0, 10)}.md`;
+        mimeType = 'text/markdown';
+        break;
+      case 'json':
+        content = JSON.stringify({
+          title: session.title,
+          createdAt: timestamp,
+          messages: session.messages
+        }, null, 2);
+        filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp.slice(0, 10)}.json`;
+        mimeType = 'application/json';
+        break;
+    }
+    
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportCurrentConversation = () => {
+    if (!currentSession) return;
+    const exportModal = document.createElement('div');
+    exportModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    exportModal.innerHTML = `
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Export Conversation</h3>
+        <div class="space-y-2">
+          <button data-format="text" class="w-full px-4 py-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Export as Text (.txt)</button>
+          <button data-format="markdown" class="w-full px-4 py-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Export as Markdown (.md)</button>
+          <button data-format="json" class="w-full px-4 py-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Export as JSON (.json)</button>
+        </div>
+        <button class="mt-4 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Cancel</button>
+      </div>
+    `;
+    document.body.appendChild(exportModal);
+    
+    exportModal.querySelector('button:last-of-type')?.addEventListener('click', () => {
+      document.body.removeChild(exportModal);
+    });
+    
+    exportModal.querySelectorAll('button[data-format]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const format = (btn as HTMLButtonElement).dataset.format as 'text' | 'markdown' | 'json';
+        exportConversation(currentSession, format);
+        document.body.removeChild(exportModal);
+      });
+    });
+  };
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -82,14 +157,28 @@ export default function ChatHistorySidebar({
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Conversations
             </h2>
-            <button
-              onClick={onClose}
-              className="lg:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              {currentSession && (
+                <button
+                  onClick={exportCurrentConversation}
+                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  title="Export conversation"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-1.64-9.642 4.002 4.002 0 00-.64 6.642" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v8m0 0l3-3m-3 3l-3-3" />
+                  </svg>
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="lg:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* New Chat Button */}
@@ -134,19 +223,33 @@ export default function ChatHistorySidebar({
                         {session.title}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatDate(session.updatedAt)}
+                        {formatDate(session.updatedAt)} • {session.messages.length} messages
                       </p>
                     </div>
                     {hoveredSession === session.id && (
-                      <button
-                        onClick={(e) => handleDeleteSession(e, session.id)}
-                        className="p-1 text-gray-400 hover:text-red-500 rounded"
-                        title="Delete conversation"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            exportConversation(session, 'text');
+                          }}
+                          className="p-1 text-gray-400 hover:text-blue-500 rounded"
+                          title="Export as text"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-1.64-9.642 4.002 4.002 0 00-.64 6.642" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteSession(e, session.id)}
+                          className="p-1 text-gray-400 hover:text-red-500 rounded"
+                          title="Delete conversation"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
