@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="Mozilla/5.0" etag="0" page="Database Schema" pageIndex="0">
+  <diagram name="Database Schema" id="1">
+    <mxGraphModel dx="1422" dy="1062" grid="1" gridSize="10" guidesEnabled="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell value="Database Schema - Chat Sessions" style="fontSize=18;align=center;" vertex="1" parent="1" id="title">
+          <mxGeometry x="50" y="20" width="750" height="30" />
+        </mxCell>
+        
+        <!-- localStorage Sessions Table -->
+        <mxCell value="localStorage: ai_chat_sessions" style="rounded=1;fillColor=#E6F3FF;strokeColor=#0066CC;" vertex="1" parent="1" id="local_storage">
+          <mxGeometry x="50" y="80" width="300" height="200" />
+        </mxCell>
+        
+        <mxCell value="id: string (UUID)" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="col1">
+          <mxGeometry x="70" y="120" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="title: string" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="col2">
+          <mxGeometry x="70" y="150" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="messages: Message[]" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="col3">
+          <mxGeometry x="70" y="180" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="model: string" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="col4">
+          <mxGeometry x="70" y="210" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="createdAt: number" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="col5">
+          <mxGeometry x="70" y="240" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="updatedAt: number" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="col6">
+          <mxGeometry x="70" y="270" width="200" height="20" />
+        </mxCell>
+        
+        <!-- SQLite Database Table -->
+        <mxCell value="SQLite: sessions table" style="rounded=1;fillColor=#E6FFE6;strokeColor=#009933;" vertex="1" parent="1" id="sqlite">
+          <mxGeometry x="450" y="80" width="300" height="200" />
+        </mxCell>
+        
+        <mxCell value="id: TEXT PRIMARY KEY" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="sqlite_col1">
+          <mxGeometry x="470" y="120" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="title: TEXT" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="sqlite_col2">
+          <mxGeometry x="470" y="150" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="model: TEXT" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="sqlite_col3">
+          <mxGeometry x="470" y="180" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="focus_mode: TEXT" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="sqlite_col4">
+          <mxGeometry x="470" y="210" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="created_at: INTEGER" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="sqlite_col5">
+          <mxGeometry x="470" y="240" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="updated_at: INTEGER" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="sqlite_col6">
+          <mxGeometry x="470" y="270" width="200" height="20" />
+        </mxCell>
+        
+        <!-- Message Table -->
+        <mxCell value="SQLite: messages table" style="rounded=1;fillColor=#E6FFE6;strokeColor=#009933;" vertex="1" parent="1" id="messages">
+          <mxGeometry x="450" y="320" width="300" height="150" />
+        </mxCell>
+        
+        <mxCell value="id: TEXT PRIMARY KEY" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="msg_col1">
+          <mxGeometry x="470" y="360" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="session_id: TEXT (FK)" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="msg_col2">
+          <mxGeometry x="470" y="390" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="role: TEXT" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="msg_col3">
+          <mxGeometry x="470" y="420" width="200" height="20" />
+        </mxCell>
+        
+        <mxCell value="content: TEXT" style="text;html=1;strokeColor=none;whiteSpace=wrap;" vertex="1" parent="1" id="msg_col4">
+          <mxGeometry x="470" y="450" width="200" height="20" />
+        </mxCell>
+        
+        <!-- Relationships -->
+        <mxCell value="One-to-Many" style="text;html=1;strokeColor=none;" vertex="1" parent="1" id="rel">
+          <mxGeometry x="350" y="200" width="100" height="20" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
