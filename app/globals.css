@@ -40,7 +40,7 @@ body {
 .markdown-content h2,
 .markdown-content h3,
 .markdown-content h4 {
-  @apply font-bold text-gray-900 dark:text-white mt-6 mb-3;
+  @apply font-semibold text-gray-900 dark:text-white mt-6 mb-3;
 }
 
 .markdown-content h1 {
@@ -95,4 +95,61 @@ body {
 
 .markdown-content th {
   @apply bg-gray-100 dark:bg-gray-800 font-semibold;
+}
+
+/* Claude-like message styling */
+.markdown-content .message-content {
+  @apply text-base leading-relaxed;
+}
+
+/* Code block improvements */
+.markdown-content pre {
+  @apply shadow-inner;
+}
+
+/* Inline code styling */
+.markdown-content p code {
+  @apply text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-900/20;
+}
+
+/* List styling improvements */
+.markdown-content ul li::marker {
+  @apply text-gray-400 dark:text-gray-500;
+}
+
+.markdown-content ol li::marker {
+  @apply text-gray-400 dark:text-gray-500;
+}
+
+/* Link styling */
+.markdown-content a[href] {
+  @apply text-blue-600 dark:text-blue-400 no-underline hover:underline;
+}
+
+/* Horizontal rule */
+.markdown-content hr {
+  @apply border-gray-200 dark:border-gray-700 my-6;
+}
+
+/* Image styling */
+.markdown-content img {
+  @apply max-w-full h-auto rounded-lg;
+}
+
+/* Highlight/yellow text */
+.markdown-content mark {
+  @apply bg-yellow-100 dark:bg-yellow-900/30 text-gray-900 dark:text-white;
+}
+
+/* Details/Summary styling */
+.markdown-content details {
+  @apply border border-gray-200 dark:border-gray-700 rounded-lg p-4 my-4;
+}
+
+.markdown-content summary {
+  @apply font-semibold cursor-pointer text-gray-900 dark:text-white;
+}
+
+.markdown-content details .markdown-content {
+  @apply mt-2;
 }

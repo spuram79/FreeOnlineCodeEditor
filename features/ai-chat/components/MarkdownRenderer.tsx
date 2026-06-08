@@ -3,7 +3,7 @@
  * 
  * Renders markdown with Claude/Perplexity-like styling including:
  * - Syntax highlighted code blocks with copy functionality
- * - Clean typography
+ * - Clean typography matching Claude's design
  * - Proper spacing and formatting
  */
 
@@ -64,7 +64,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div
       ref={containerRef}
-      className="markdown-content"
+      className="markdown-content prose prose-gray dark:prose-invert max-w-none text-base leading-relaxed"
       dangerouslySetInnerHTML={renderMarkdown(content)}
     />
   );

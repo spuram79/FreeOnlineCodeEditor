@@ -34,7 +34,7 @@ export default function MessageBubble({ message, onFollowUpClick }: MessageBubbl
           <div className={`px-4 py-3 rounded-2xl ${
             isUser
               ? "bg-blue-500 text-white rounded-br-md"
-              : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-bl-md"
+              : "bg-white dark:bg-gray-850 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-sm"
           }`}>
             <div className="text-sm leading-relaxed">
               <MarkdownRenderer content={message.content} />
