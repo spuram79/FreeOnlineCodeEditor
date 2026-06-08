@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2022",
+    "outDir": "out",
+    "rootDir": "src",
+    "lib": [
+      "es2022"
+    ],
+    "sourceMap": true,
+    "rootMarkers": [
+      "./src/extension.ts"
+    ],
+    "strict": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "types": [
+      "vscode"
+    ],
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true,
+    "resolveJsonModule": true
+  },
+  "exclude": [
+    "node_modules",
+    ".vscode-test"
+  ]
+}

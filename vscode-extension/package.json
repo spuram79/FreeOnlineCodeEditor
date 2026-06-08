@@ -1,0 +1,112 @@
+{
+  "name": "free-ai-chat",
+  "displayName": "Free AI Chat",
+  "description": "AI Chat assistant powered by OpenRouter - integrated into VS Code",
+  "version": "1.0.0",
+  "publisher": "spuram79",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:free-ai-chat.openChat",
+    "onCommand:free-ai-chat.askSelection",
+    "onCommand:free-ai-chat.explainCode",
+    "onCommand:free-ai-chat.generateCode",
+    "onCommand:free-ai-chat.refactorCode",
+    "onView:free-ai-chat.activities"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "free-ai-chat.openChat",
+        "title": "Free AI Chat: Open Chat Panel",
+        "icon": "media/icon.svg"
+      },
+      {
+        "command": "free-ai-chat.askSelection",
+        "title": "Free AI Chat: Ask About Selection",
+        "icon": "media/icon.svg"
+      },
+      {
+        "command": "free-ai-chat.explainCode",
+        "title": "Free AI Chat: Explain Code",
+        "icon": "media/icon.svg"
+      },
+      {
+        "command": "free-ai-chat.generateCode",
+        "title": "Free AI Chat: Generate Code",
+        "icon": "media/icon.svg"
+      },
+      {
+        "command": "free-ai-chat.refactorCode",
+        "title": "Free AI Chat: Refactor Code",
+        "icon": "media/icon.svg"
+      },
+      {
+        "command": "free-ai-chat.insertResponse",
+        "title": "Free AI Chat: Insert Response at Cursor",
+        "icon": "media/icon.svg"
+      }
+    ],
+    "views": {
+      "activityBar": [
+        {
+          "id": "free-ai-chat.activities",
+          "title": "Free AI Chat"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Free AI Chat",
+      "properties": {
+        "free-ai-chat.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenRouter API Key. Get one at https://openrouter.ai/keys"
+        },
+        "free-ai-chat.defaultModel": {
+          "type": "string",
+          "default": "openrouter/free",
+          "description": "Default AI model to use"
+        },
+        "free-ai-chat.endpoint": {
+          "type": "string",
+          "default": "https://sb-30apv2h137ht.vercel.run",
+          "description": "AI Chat API endpoint (use local or remote URL)"
+        },
+        "free-ai-chat.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "description": "AI response creativity (0-1)"
+        },
+        "free-ai-chat.maxTokens": {
+          "type": "number",
+          "default": 2048,
+          "description": "Maximum tokens in response"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext .ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-electron": "^7.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vsce": "^2.0.0"
+  }
+}

@@ -11,6 +11,8 @@ This document provides detailed documentation for each feature in the FreeOnline
 4. [Settings Feature](#settings-feature)
 5. [Copy & Download Feature](#copy--download-feature)
 6. [MCP Integration](#mcp-integration)
+7. [VS Code Extension](#vs-code-extension)
+8. [SQLite Database](#sqlite-database)
 
 ---
 
@@ -271,6 +273,145 @@ features/
 |----------|----------|-------------|
 | `OPENROUTER_API_KEY` | Yes | All |
 | `NEXT_PUBLIC_SITE_URL` | Yes | All |
+
+---
+
+## VS Code Extension
+
+### Overview
+
+A VS Code extension that integrates the Free AI Chat functionality directly into the editor, allowing developers to use AI assistance without leaving their coding environment.
+
+### Extension Features
+
+| Feature | Command | Description |
+|---------|---------|-------------|
+| Open Chat Panel | `free-ai-chat.openChat` | Opens webview chat panel |
+| Ask About Selection | `free-ai-chat.askSelection` | Ask AI about selected code |
+| Explain Code | `free-ai-chat.explainCode` | Get code explanations |
+| Generate Code | `free-ai-chat.generateCode` | Generate code from description |
+| Refactor Code | `free-ai-chat.refactorCode` | Improve existing code |
+| Insert Response | `free-ai-chat.insertResponse` | Insert AI response at cursor |
+
+### Installation
+
+```bash
+# From VS Code Marketplace (when published)
+code --install-extension spuram79.free-ai-chat
+
+# From source
+cd vscode-extension
+npm install -g @vscode/vsce
+vsce package
+code --install-extension free-ai-chat-1.0.0.vsix
+```
+
+### Configuration
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `free-ai-chat.apiKey` | `""` | OpenRouter API Key |
+| `free-ai-chat.defaultModel` | `"openrouter/free"` | Default AI model |
+| `free-ai-chat.endpoint` | Remote URL | API endpoint URL |
+| `free-ai-chat.temperature` | `0.7` | AI creativity level |
+| `free-ai-chat.maxTokens` | `2048` | Max response tokens |
+
+### Architecture
+
+```
+┌─────────────────────────────────┐
+│        VS Code Editor            │
+├─────────────────────────────────┤
+│     Extension (extension.ts)    │
+│    ┌───────────────────────┐   │
+│    │    ChatProvider       │   │
+│    └───────────────────────┘   │
+├─────────────────────────────────┤
+│     OpenRouterClient           │
+├─────────────────────────────────┤
+│      MCP API Endpoint          │
+│      /api/mcp (Remote/Local)   │
+└─────────────────────────────────┘
+```
+
+### Use Cases
+
+1. **Code Explanation**: Select code → Run "Explain Code" → Get detailed explanation
+2. **Bug Finding**: Select problematic code → Ask AI to find bugs → Apply fixes
+3. **Code Generation**: Describe what you need → Get AI-generated code → Insert at cursor
+4. **Refactoring**: Select code → Run "Refactor Code" → Get improved version
+5. **Learning**: Ask questions about programming concepts in the chat panel
+
+### Project Structure
+
+```
+vscode-extension/
+├── src/
+│   ├── extension.ts          # Main entry point
+│   ├── openrouter-client.ts  # API client
+│   ├── chat-provider.ts      # Chat functionality
+│   └── webview-content.ts    # Webview HTML/CSS
+├── media/
+│   ├── icon.svg              # Extension icon
+│   └── style.css             # Webview styling
+├── package.json              # Extension manifest
+├── tsconfig.json             # TypeScript config
+└── README.md                 # Extension documentation
+```
+
+---
+
+## SQLite Database
+
+### Overview
+
+Server-side persistence using SQLite database for storing chat sessions, allowing data to persist across devices and browser sessions.
+
+### Schema
+
+```sql
+CREATE TABLE chat_sessions (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  model TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  role TEXT NOT NULL CHECK(role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  sources TEXT,
+  follow_up_questions TEXT,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_messages_session ON messages(session_id);
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/db/sessions` | GET | List all sessions |
+| `/api/db/sessions` | POST | Create new session |
+| `/api/db/sessions/:id` | GET | Get session with messages |
+| `/api/db/sessions/:id` | PUT | Update session |
+| `/api/db/sessions/:id` | DELETE | Delete session |
+| `/api/db/sessions/all` | DELETE | Delete all sessions |
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| Persistent Storage | Sessions survive browser clearing |
+| Cross-Device Sync | Access from any device |
+| Full CRUD | Create, Read, Update, Delete sessions |
+| Bulk Operations | Delete all sessions at once |
+| Structured Data | Proper relational schema |
 
 ---
 

@@ -1,0 +1,19 @@
+# Files to ignore when packaging the extension
+**/.git
+**/.gitignore
+**/.travis.yml
+**/.vscode
+**/.vscode/*
+**/*.vsix
+**/*.ts
+!out/
+out/**/*.map
+out/**/test
+**/*.md
+!README.md
+**/*.yml
+!**/webpack.config.js
+LICENSE
+README.md
+azure-pipelines.yml
+**/*.tsbuildinfo
